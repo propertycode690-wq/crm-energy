@@ -766,7 +766,7 @@ async function handleGeneralIntelligence(message, classification) {
         `\`\`\`\n\n` +
         `### Testing the Endpoint:\n` +
         `\`\`\`bash\n` +
-        `curl -X POST http://localhost:5002/api/validate-email \\\n` +
+        `curl -X POST https://crm-energy-production.up.railway.app/api/validate-email \\\n` +
         `  -H "Content-Type: application/json" \\\n` +
         `  -d '{"email": "business.owner@crm-nergy.com"}'\n` +
         `\`\`\``,

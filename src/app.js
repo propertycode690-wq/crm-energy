@@ -33,77 +33,11 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 // Load environment variables
 dotenv.config();
 
+const { corsOptions } = require('./config/corsConfig');
+
 const app = express();
 
-// CORS configuration - supports Netlify, Railway, localhost, and env-configured origins
-const parseOrigins = (raw) => {
-  if (!raw) return [];
-  return raw
-    .split(',')
-    .map((o) => o.trim().replace(/\/+$/, ''))
-    .filter(Boolean);
-};
-
-const defaultAllowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:5173',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:5173',
-  'https://crm-energy.netlify.app',
-  'https://crm-energy-backend-production.up.railway.app',
-  'https://crm-energy-backend-production-59b6.up.railway.app',
-  ...parseOrigins(process.env.CORS_ORIGIN),
-];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
-    if (!origin) return callback(null, true);
-
-    const normalizedOrigin = origin.replace(/\/+$/, '');
-
-    const isExplicitlyAllowed = defaultAllowedOrigins.includes(normalizedOrigin);
-    const isLocalhost =
-      normalizedOrigin.startsWith('http://localhost:') ||
-      normalizedOrigin.startsWith('http://127.0.0.1:');
-    const isNetlify =
-      normalizedOrigin.endsWith('.netlify.app') ||
-      normalizedOrigin === 'https://crm-energy.netlify.app';
-    const isRailway = normalizedOrigin.endsWith('.railway.app');
-
-    if (isExplicitlyAllowed || isLocalhost || isNetlify || isRailway) {
-      return callback(null, true);
-    }
-
-    return callback(new Error(`CORS policy: Origin ${origin} not allowed`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin',
-    'X-Platform-Api-Key',
-    'X-Api-Key',
-    'X-SWMTP-Signature',
-    'x-user-role-id',
-    'x-user-role',
-    'x-user-id',
-    'x-user-name',
-    'x-tenant-id',
-    'X-User-Role-Id',
-    'X-User-Role',
-    'X-User-Id',
-    'X-User-Name',
-    'X-Tenant-Id',
-  ],
-  optionsSuccessStatus: 200,
-};
-
+// Apply Centralized CORS Middleware across all routes
 app.use(cors(corsOptions));
 
 // Body parsing middleware with safety limits

@@ -3,6 +3,12 @@ const dotenv = require('dotenv');
 // Load environment variables before starting server
 dotenv.config();
 
+// ==============================================================================
+// CENTRALIZED CORS ORIGINS CONFIGURATION
+// Add any frontend ports (5173, 5174, 5175, etc.) or domains to ALLOWED_ORIGINS
+// ==============================================================================
+const { ALLOWED_ORIGINS, corsOptions, isOriginAllowed } = require('./config/corsConfig');
+
 const app = require('./app');
 const { initCallSignaling } = require('./services/callSignalingService');
 
@@ -10,6 +16,7 @@ const PORT = process.env.PORT || 5002;
 
 const server = app.listen(PORT, () => {
   console.log(`[Server] CRM nErgy API Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`[CORS] Centralized origins enabled: [${ALLOWED_ORIGINS.slice(0, 6).join(', ')} ... + any localhost:*]`);
   
   // Initialize Socket.IO Call Signaling Service
   initCallSignaling(server);
