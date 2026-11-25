@@ -1,0 +1,123 @@
+[
+  {
+    "suite": "MP06: Gantt & CPM Schedule",
+    "file": "test_egolytics_master_06.js",
+    "total": 35,
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "1.29"
+  },
+  {
+    "suite": "MP07: Experiments & Hypotheses",
+    "file": "test_egolytics_master_07.js",
+    "total": 40,
+    "passed": 39,
+    "failed": 1,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "ERROR",
+    "duration": "1.36"
+  },
+  {
+    "suite": "MP08: ELN & Research Documents",
+    "file": "test_egolytics_master_08.js",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "1.17"
+  },
+  {
+    "suite": "MP09: Governance, Risks & Budgets",
+    "file": "test_egolytics_master_09.js",
+    "total": 53,
+    "passed": 52,
+    "failed": 1,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "ERROR",
+    "duration": "1.94"
+  },
+  {
+    "suite": "MP10: Resource, Capacity & Facilities",
+    "file": "test_egolytics_master_10.js",
+    "total": 34,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "2.59"
+  },
+  {
+    "suite": "MP11: Collaboration & Integrations",
+    "file": "test_egolytics_master_11.js",
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "1.27"
+  },
+  {
+    "suite": "MP12: Dashboard, Analytics & KPIs",
+    "file": "test_egolytics_master_12.js",
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "1.75"
+  },
+  {
+    "suite": "MP13: Maplytics GIS Territories",
+    "file": "test_egolytics_master_13.js",
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "1.39"
+  },
+  {
+    "suite": "MP14: BFOV Charts Core Canvas",
+    "file": "test_egolytics_master_14.js",
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "1.00"
+  },
+  {
+    "suite": "MP15: BFOV Advanced & AI Generation",
+    "file": "test_egolytics_master_15.js",
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "0.95"
+  },
+  {
+    "suite": "MP16: Enterprise IP, SOP & Audit QA",
+    "file": "test_egolytics_master_16.js",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 0,
+    "status": "PASSED",
+    "duration": "0.73"
+  }
+]

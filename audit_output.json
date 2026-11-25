@@ -1,0 +1,1693 @@
+{
+  "timestamp": "2026-11-25T06:34:18.149Z",
+  "environment": {
+    "dbVersion": "10.4.32-MariaDB",
+    "dbName": "crm_energy_jonny",
+    "prismaVersion": "6.4.1",
+    "nodeVersion": "v22.12.0"
+  },
+  "schemaModelsCount": 139,
+  "physicalTablesCount": 140,
+  "matchedTables": [
+    {
+      "modelName": "Tenant",
+      "tableName": "tenants"
+    },
+    {
+      "modelName": "User",
+      "tableName": "users"
+    },
+    {
+      "modelName": "Lead",
+      "tableName": "leads"
+    },
+    {
+      "modelName": "Contact",
+      "tableName": "contacts"
+    },
+    {
+      "modelName": "Deal",
+      "tableName": "deals"
+    },
+    {
+      "modelName": "Task",
+      "tableName": "tasks"
+    },
+    {
+      "modelName": "Note",
+      "tableName": "notes"
+    },
+    {
+      "modelName": "Activity",
+      "tableName": "activities"
+    },
+    {
+      "modelName": "ErpProject",
+      "tableName": "erp_projects"
+    },
+    {
+      "modelName": "SalesOrder",
+      "tableName": "sales_orders"
+    },
+    {
+      "modelName": "PurchaseOrder",
+      "tableName": "purchase_orders"
+    },
+    {
+      "modelName": "InventoryItem",
+      "tableName": "inventory_items"
+    },
+    {
+      "modelName": "Invoice",
+      "tableName": "invoices"
+    },
+    {
+      "modelName": "Communication",
+      "tableName": "communications"
+    },
+    {
+      "modelName": "Territory",
+      "tableName": "territories"
+    },
+    {
+      "modelName": "HrEmployee",
+      "tableName": "hr_employees"
+    },
+    {
+      "modelName": "HrCandidate",
+      "tableName": "hr_candidates"
+    },
+    {
+      "modelName": "SupportTicket",
+      "tableName": "support_tickets"
+    },
+    {
+      "modelName": "KnowledgeArticle",
+      "tableName": "knowledge_articles"
+    },
+    {
+      "modelName": "LedgerAccount",
+      "tableName": "ledger_accounts"
+    },
+    {
+      "modelName": "ProductionOrder",
+      "tableName": "production_orders"
+    },
+    {
+      "modelName": "EboxMessage",
+      "tableName": "ebox_messages"
+    },
+    {
+      "modelName": "StaffCallSession",
+      "tableName": "staff_call_sessions"
+    },
+    {
+      "modelName": "RolePermission",
+      "tableName": "role_permissions"
+    },
+    {
+      "modelName": "ProjectProposal",
+      "tableName": "project_proposals"
+    },
+    {
+      "modelName": "StrategicGoal",
+      "tableName": "strategic_goals"
+    },
+    {
+      "modelName": "ProjectStrategicAlignment",
+      "tableName": "project_strategic_alignments"
+    },
+    {
+      "modelName": "RdIdeaCategory",
+      "tableName": "rd_idea_categories"
+    },
+    {
+      "modelName": "RdIdea",
+      "tableName": "rd_ideas"
+    },
+    {
+      "modelName": "RdIdeaVote",
+      "tableName": "rd_idea_votes"
+    },
+    {
+      "modelName": "RdIdeaComment",
+      "tableName": "rd_idea_comments"
+    },
+    {
+      "modelName": "RdIdeaReviewer",
+      "tableName": "rd_idea_reviewers"
+    },
+    {
+      "modelName": "RdIdeaEvaluationRubric",
+      "tableName": "rd_idea_evaluation_rubrics"
+    },
+    {
+      "modelName": "RdIdeaEvaluationCriterion",
+      "tableName": "rd_idea_evaluation_criteria"
+    },
+    {
+      "modelName": "RdIdeaEvaluation",
+      "tableName": "rd_idea_evaluations"
+    },
+    {
+      "modelName": "RdIdeaEvaluationScore",
+      "tableName": "rd_idea_evaluation_scores"
+    },
+    {
+      "modelName": "RdStageTemplate",
+      "tableName": "rd_stage_templates"
+    },
+    {
+      "modelName": "RdInnovationStage",
+      "tableName": "rd_innovation_stages"
+    },
+    {
+      "modelName": "RdStageCriterion",
+      "tableName": "rd_stage_criteria"
+    },
+    {
+      "modelName": "RdDecisionGate",
+      "tableName": "rd_decision_gates"
+    },
+    {
+      "modelName": "RdProjectGovernance",
+      "tableName": "rd_project_governances"
+    },
+    {
+      "modelName": "RdProjectStageHistory",
+      "tableName": "rd_project_stage_histories"
+    },
+    {
+      "modelName": "RdGateReview",
+      "tableName": "rd_gate_reviews"
+    },
+    {
+      "modelName": "RdGateReviewer",
+      "tableName": "rd_gate_reviewers"
+    },
+    {
+      "modelName": "RdGateSignOff",
+      "tableName": "rd_gate_sign_offs"
+    },
+    {
+      "modelName": "RdGateDecision",
+      "tableName": "rd_gate_decisions"
+    },
+    {
+      "modelName": "RdGateEvidence",
+      "tableName": "rd_gate_evidence"
+    },
+    {
+      "modelName": "RdGateReviewComment",
+      "tableName": "rd_gate_review_comments"
+    },
+    {
+      "modelName": "RdSprint",
+      "tableName": "rd_sprints"
+    },
+    {
+      "modelName": "RdTaskDependency",
+      "tableName": "rd_task_dependencies"
+    },
+    {
+      "modelName": "RdTaskScheduleBaseline",
+      "tableName": "rd_task_schedule_baselines"
+    },
+    {
+      "modelName": "RdScheduleAlert",
+      "tableName": "rd_schedule_alerts"
+    },
+    {
+      "modelName": "RdMilestone",
+      "tableName": "rd_milestones"
+    },
+    {
+      "modelName": "RdResearchObjective",
+      "tableName": "rd_research_objectives"
+    },
+    {
+      "modelName": "RdHypothesis",
+      "tableName": "rd_hypotheses"
+    },
+    {
+      "modelName": "RdVariable",
+      "tableName": "rd_variables"
+    },
+    {
+      "modelName": "RdExperimentProtocol",
+      "tableName": "rd_experiment_protocols"
+    },
+    {
+      "modelName": "RdProtocolStep",
+      "tableName": "rd_protocol_steps"
+    },
+    {
+      "modelName": "RdExperiment",
+      "tableName": "rd_experiments"
+    },
+    {
+      "modelName": "RdExperimentRun",
+      "tableName": "rd_experiment_runs"
+    },
+    {
+      "modelName": "RdExperimentRunStep",
+      "tableName": "rd_experiment_run_steps"
+    },
+    {
+      "modelName": "RdExperimentObservation",
+      "tableName": "rd_experiment_observations"
+    },
+    {
+      "modelName": "RdExperimentMeasurement",
+      "tableName": "rd_experiment_measurements"
+    },
+    {
+      "modelName": "RdExperimentResult",
+      "tableName": "rd_experiment_results"
+    },
+    {
+      "modelName": "RdResearchEvidence",
+      "tableName": "rd_research_evidences"
+    },
+    {
+      "modelName": "RdResearchOutcome",
+      "tableName": "rd_research_outcomes"
+    },
+    {
+      "modelName": "RdResearchNote",
+      "tableName": "rd_research_notes"
+    },
+    {
+      "modelName": "RdNotebook",
+      "tableName": "rd_notebooks"
+    },
+    {
+      "modelName": "RdNotebookContributor",
+      "tableName": "rd_notebook_contributors"
+    },
+    {
+      "modelName": "RdResearchNoteVersion",
+      "tableName": "rd_research_note_versions"
+    },
+    {
+      "modelName": "RdResearchDocument",
+      "tableName": "rd_research_documents"
+    },
+    {
+      "modelName": "RdDocumentVersion",
+      "tableName": "rd_document_versions"
+    },
+    {
+      "modelName": "RdDocumentLink",
+      "tableName": "rd_document_links"
+    },
+    {
+      "modelName": "RdDataset",
+      "tableName": "rd_datasets"
+    },
+    {
+      "modelName": "RdDatasetFile",
+      "tableName": "rd_dataset_files"
+    },
+    {
+      "modelName": "RdKnowledgeRecord",
+      "tableName": "rd_knowledge_records"
+    },
+    {
+      "modelName": "RdDecision",
+      "tableName": "rd_decisions"
+    },
+    {
+      "modelName": "RdDecisionHistory",
+      "tableName": "rd_decision_histories"
+    },
+    {
+      "modelName": "RdRisk",
+      "tableName": "rd_risks"
+    },
+    {
+      "modelName": "RdRiskMitigation",
+      "tableName": "rd_risk_mitigations"
+    },
+    {
+      "modelName": "RdRiskReviewHistory",
+      "tableName": "rd_risk_review_histories"
+    },
+    {
+      "modelName": "RdIssue",
+      "tableName": "rd_issues"
+    },
+    {
+      "modelName": "RdIssueComment",
+      "tableName": "rd_issue_comments"
+    },
+    {
+      "modelName": "RdChangeRequest",
+      "tableName": "rd_change_requests"
+    },
+    {
+      "modelName": "RdRequirement",
+      "tableName": "rd_requirements"
+    },
+    {
+      "modelName": "RdRequirementCriterion",
+      "tableName": "rd_requirement_criteria"
+    },
+    {
+      "modelName": "RdScopeBaseline",
+      "tableName": "rd_scope_baselines"
+    },
+    {
+      "modelName": "RdScopeItem",
+      "tableName": "rd_scope_items"
+    },
+    {
+      "modelName": "RdDeliverable",
+      "tableName": "rd_deliverables"
+    },
+    {
+      "modelName": "RdQualityCheckpoint",
+      "tableName": "rd_quality_checkpoints"
+    },
+    {
+      "modelName": "RdQualityCriterion",
+      "tableName": "rd_quality_criteria"
+    },
+    {
+      "modelName": "RdProjectBudget",
+      "tableName": "rd_project_budgets"
+    },
+    {
+      "modelName": "RdBudgetAllocation",
+      "tableName": "rd_budget_allocations"
+    },
+    {
+      "modelName": "RdBudgetRevision",
+      "tableName": "rd_budget_revisions"
+    },
+    {
+      "modelName": "RdResourceProfile",
+      "tableName": "rd_resource_profiles"
+    },
+    {
+      "modelName": "RdResourceAllocation",
+      "tableName": "rd_resource_allocations"
+    },
+    {
+      "modelName": "RdSkill",
+      "tableName": "rd_skills"
+    },
+    {
+      "modelName": "RdEmployeeSkill",
+      "tableName": "rd_employee_skills"
+    },
+    {
+      "modelName": "RdTimesheet",
+      "tableName": "rd_timesheets"
+    },
+    {
+      "modelName": "RdTimeEntry",
+      "tableName": "rd_time_entries"
+    },
+    {
+      "modelName": "RdTimesheetHistory",
+      "tableName": "rd_timesheet_histories"
+    },
+    {
+      "modelName": "RdFacility",
+      "tableName": "rd_facilities"
+    },
+    {
+      "modelName": "RdLabEquipment",
+      "tableName": "rd_lab_equipment"
+    },
+    {
+      "modelName": "RdEquipmentMaintenance",
+      "tableName": "rd_equipment_maintenances"
+    },
+    {
+      "modelName": "RdFacilityBooking",
+      "tableName": "rd_facility_bookings"
+    },
+    {
+      "modelName": "RdBookingHistory",
+      "tableName": "rd_booking_histories"
+    },
+    {
+      "modelName": "RdConversation",
+      "tableName": "rd_conversations"
+    },
+    {
+      "modelName": "RdConversationParticipant",
+      "tableName": "rd_conversation_participants"
+    },
+    {
+      "modelName": "RdMessage",
+      "tableName": "rd_messages"
+    },
+    {
+      "modelName": "RdMessageAttachment",
+      "tableName": "rd_message_attachments"
+    },
+    {
+      "modelName": "RdContextComment",
+      "tableName": "rd_context_comments"
+    },
+    {
+      "modelName": "RdMention",
+      "tableName": "rd_mentions"
+    },
+    {
+      "modelName": "RdNotification",
+      "tableName": "rd_notifications"
+    },
+    {
+      "modelName": "RdNotificationPreference",
+      "tableName": "rd_notification_preferences"
+    },
+    {
+      "modelName": "RdCalendarEvent",
+      "tableName": "rd_calendar_events"
+    },
+    {
+      "modelName": "RdCalendarParticipant",
+      "tableName": "rd_calendar_participants"
+    },
+    {
+      "modelName": "RdIntegrationConfig",
+      "tableName": "rd_integration_configs"
+    },
+    {
+      "modelName": "RdIntegrationLog",
+      "tableName": "rd_integration_logs"
+    },
+    {
+      "modelName": "RdKpi",
+      "tableName": "rd_kpis"
+    },
+    {
+      "modelName": "RdKpiHistory",
+      "tableName": "rd_kpi_history"
+    },
+    {
+      "modelName": "RdDashboardPreference",
+      "tableName": "rd_dashboard_preferences"
+    },
+    {
+      "modelName": "GisRegion",
+      "tableName": "gis_regions"
+    },
+    {
+      "modelName": "GisTerritory",
+      "tableName": "gis_territories"
+    },
+    {
+      "modelName": "GisLayer",
+      "tableName": "gis_layers"
+    },
+    {
+      "modelName": "GisFeature",
+      "tableName": "gis_features"
+    },
+    {
+      "modelName": "GisUploadedFile",
+      "tableName": "gis_uploaded_files"
+    },
+    {
+      "modelName": "GisRealignment",
+      "tableName": "gis_realignments"
+    },
+    {
+      "modelName": "GisArcgisConfig",
+      "tableName": "gis_arcgis_configs"
+    },
+    {
+      "modelName": "GisAuditLog",
+      "tableName": "gis_audit_logs"
+    },
+    {
+      "modelName": "BfovDiagram",
+      "tableName": "bfov_diagrams"
+    },
+    {
+      "modelName": "BfovDiagramVersion",
+      "tableName": "bfov_diagram_versions"
+    },
+    {
+      "modelName": "BfovDiagramTemplate",
+      "tableName": "bfov_diagram_templates"
+    },
+    {
+      "modelName": "BfovDiagramComment",
+      "tableName": "bfov_diagram_comments"
+    },
+    {
+      "modelName": "BfovDiagramShare",
+      "tableName": "bfov_diagram_shares"
+    },
+    {
+      "modelName": "BfovAiGeneration",
+      "tableName": "bfov_ai_generations"
+    },
+    {
+      "modelName": "RdIpAsset",
+      "tableName": "rd_ip_assets"
+    },
+    {
+      "modelName": "RdComplianceSop",
+      "tableName": "rd_compliance_sops"
+    },
+    {
+      "modelName": "RdEnterpriseAuditLog",
+      "tableName": "rd_enterprise_audit_logs"
+    },
+    {
+      "modelName": "RdApiKey",
+      "tableName": "rd_api_keys"
+    }
+  ],
+  "missingPhysicalTables": [],
+  "unmappedPhysicalTables": [
+    "_prisma_migrations"
+  ],
+  "columnDifferences": [],
+  "foreignKeyDrift": [],
+  "recordCounts": {
+    "_prisma_migrations": 1,
+    "activities": 4,
+    "bfov_ai_generations": 6,
+    "bfov_diagram_comments": 3,
+    "bfov_diagram_shares": 3,
+    "bfov_diagram_templates": 7,
+    "bfov_diagram_versions": 24,
+    "bfov_diagrams": 12,
+    "communications": 0,
+    "contacts": 1,
+    "deals": 0,
+    "ebox_messages": 78,
+    "erp_projects": 1,
+    "gis_arcgis_configs": 1,
+    "gis_audit_logs": 82,
+    "gis_features": 40,
+    "gis_layers": 10,
+    "gis_realignments": 7,
+    "gis_regions": 7,
+    "gis_territories": 7,
+    "gis_uploaded_files": 16,
+    "hr_candidates": 0,
+    "hr_employees": 0,
+    "inventory_items": 0,
+    "invoices": 0,
+    "knowledge_articles": 1,
+    "leads": 2,
+    "ledger_accounts": 0,
+    "notes": 0,
+    "production_orders": 0,
+    "project_proposals": 0,
+    "project_strategic_alignments": 0,
+    "purchase_orders": 0,
+    "rd_api_keys": 3,
+    "rd_booking_histories": 0,
+    "rd_budget_allocations": 0,
+    "rd_budget_revisions": 0,
+    "rd_calendar_events": 14,
+    "rd_calendar_participants": 28,
+    "rd_change_requests": 0,
+    "rd_compliance_sops": 3,
+    "rd_context_comments": 14,
+    "rd_conversation_participants": 28,
+    "rd_conversations": 14,
+    "rd_dashboard_preferences": 0,
+    "rd_dataset_files": 0,
+    "rd_datasets": 0,
+    "rd_decision_gates": 5,
+    "rd_decision_histories": 0,
+    "rd_decisions": 0,
+    "rd_deliverables": 0,
+    "rd_document_links": 0,
+    "rd_document_versions": 0,
+    "rd_employee_skills": 0,
+    "rd_enterprise_audit_logs": 33,
+    "rd_equipment_maintenances": 0,
+    "rd_experiment_measurements": 0,
+    "rd_experiment_observations": 0,
+    "rd_experiment_protocols": 0,
+    "rd_experiment_results": 0,
+    "rd_experiment_run_steps": 0,
+    "rd_experiment_runs": 0,
+    "rd_experiments": 0,
+    "rd_facilities": 0,
+    "rd_facility_bookings": 0,
+    "rd_gate_decisions": 0,
+    "rd_gate_evidence": 0,
+    "rd_gate_review_comments": 0,
+    "rd_gate_reviewers": 0,
+    "rd_gate_reviews": 0,
+    "rd_gate_sign_offs": 0,
+    "rd_hypotheses": 0,
+    "rd_idea_categories": 0,
+    "rd_idea_comments": 0,
+    "rd_idea_evaluation_criteria": 0,
+    "rd_idea_evaluation_rubrics": 0,
+    "rd_idea_evaluation_scores": 0,
+    "rd_idea_evaluations": 0,
+    "rd_idea_reviewers": 0,
+    "rd_idea_votes": 0,
+    "rd_ideas": 0,
+    "rd_innovation_stages": 5,
+    "rd_integration_configs": 1,
+    "rd_integration_logs": 14,
+    "rd_ip_assets": 3,
+    "rd_issue_comments": 0,
+    "rd_issues": 0,
+    "rd_knowledge_records": 0,
+    "rd_kpi_history": 9,
+    "rd_kpis": 6,
+    "rd_lab_equipment": 0,
+    "rd_mentions": 0,
+    "rd_message_attachments": 14,
+    "rd_messages": 28,
+    "rd_milestones": 0,
+    "rd_notebook_contributors": 0,
+    "rd_notebooks": 0,
+    "rd_notification_preferences": 1,
+    "rd_notifications": 14,
+    "rd_project_budgets": 0,
+    "rd_project_governances": 0,
+    "rd_project_stage_histories": 0,
+    "rd_protocol_steps": 0,
+    "rd_quality_checkpoints": 0,
+    "rd_quality_criteria": 0,
+    "rd_requirement_criteria": 0,
+    "rd_requirements": 0,
+    "rd_research_documents": 0,
+    "rd_research_evidences": 0,
+    "rd_research_note_versions": 0,
+    "rd_research_notes": 0,
+    "rd_research_objectives": 0,
+    "rd_research_outcomes": 0,
+    "rd_resource_allocations": 0,
+    "rd_resource_profiles": 14,
+    "rd_risk_mitigations": 0,
+    "rd_risk_review_histories": 0,
+    "rd_risks": 0,
+    "rd_schedule_alerts": 0,
+    "rd_scope_baselines": 0,
+    "rd_scope_items": 0,
+    "rd_skills": 0,
+    "rd_sprints": 0,
+    "rd_stage_criteria": 15,
+    "rd_stage_templates": 1,
+    "rd_task_dependencies": 0,
+    "rd_task_schedule_baselines": 0,
+    "rd_time_entries": 0,
+    "rd_timesheet_histories": 0,
+    "rd_timesheets": 0,
+    "rd_variables": 0,
+    "role_permissions": 0,
+    "sales_orders": 0,
+    "staff_call_sessions": 42,
+    "strategic_goals": 0,
+    "support_tickets": 5,
+    "tasks": 1,
+    "tenants": 2,
+    "territories": 0,
+    "users": 14
+  },
+  "mp11_16_audit": [
+    {
+      "model": "RdConversation",
+      "tableName": "rd_conversations",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 14,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdConversationParticipant",
+      "tableName": "rd_conversation_participants",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 28,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdMessage",
+      "tableName": "rd_messages",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 28,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdMessageAttachment",
+      "tableName": "rd_message_attachments",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 14,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdContextComment",
+      "tableName": "rd_context_comments",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 14,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdMention",
+      "tableName": "rd_mentions",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 0,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdNotification",
+      "tableName": "rd_notifications",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 14,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdNotificationPreference",
+      "tableName": "rd_notification_preferences",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 1,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdCalendarEvent",
+      "tableName": "rd_calendar_events",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 14,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdCalendarParticipant",
+      "tableName": "rd_calendar_participants",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 28,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdIntegrationConfig",
+      "tableName": "rd_integration_configs",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 1,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdIntegrationLog",
+      "tableName": "rd_integration_logs",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 14,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdKpi",
+      "tableName": "rd_kpis",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 6,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdKpiHistory",
+      "tableName": "rd_kpi_history",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 9,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdDashboardPreference",
+      "tableName": "rd_dashboard_preferences",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 0,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisRegion",
+      "tableName": "gis_regions",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 7,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisTerritory",
+      "tableName": "gis_territories",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 7,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisLayer",
+      "tableName": "gis_layers",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 10,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisFeature",
+      "tableName": "gis_features",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 40,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisUploadedFile",
+      "tableName": "gis_uploaded_files",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 16,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisRealignment",
+      "tableName": "gis_realignments",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 7,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisArcgisConfig",
+      "tableName": "gis_arcgis_configs",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 1,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "GisAuditLog",
+      "tableName": "gis_audit_logs",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 82,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "BfovDiagram",
+      "tableName": "bfov_diagrams",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 12,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "BfovDiagramVersion",
+      "tableName": "bfov_diagram_versions",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 24,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "BfovDiagramTemplate",
+      "tableName": "bfov_diagram_templates",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 7,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "BfovDiagramComment",
+      "tableName": "bfov_diagram_comments",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 3,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "BfovDiagramShare",
+      "tableName": "bfov_diagram_shares",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 3,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "BfovAiGeneration",
+      "tableName": "bfov_ai_generations",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 6,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdIpAsset",
+      "tableName": "rd_ip_assets",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 3,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdComplianceSop",
+      "tableName": "rd_compliance_sops",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 3,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdEnterpriseAuditLog",
+      "tableName": "rd_enterprise_audit_logs",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 33,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    },
+    {
+      "model": "RdApiKey",
+      "tableName": "rd_api_keys",
+      "prismaStatus": "DEFINED",
+      "dbStatus": "EXISTS",
+      "rowCount": 3,
+      "issue": "None",
+      "finalStatus": "HEALTHY"
+    }
+  ],
+  "multiTenancyAudit": [
+    {
+      "table": "activities",
+      "hasTenantId": true,
+      "rowCount": 4
+    },
+    {
+      "table": "bfov_ai_generations",
+      "hasTenantId": true,
+      "rowCount": 6
+    },
+    {
+      "table": "bfov_diagram_comments",
+      "hasTenantId": true,
+      "rowCount": 3
+    },
+    {
+      "table": "bfov_diagram_shares",
+      "hasTenantId": true,
+      "rowCount": 3
+    },
+    {
+      "table": "bfov_diagram_versions",
+      "hasTenantId": true,
+      "rowCount": 24
+    },
+    {
+      "table": "bfov_diagrams",
+      "hasTenantId": true,
+      "rowCount": 12
+    },
+    {
+      "table": "communications",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "contacts",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "deals",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "ebox_messages",
+      "hasTenantId": true,
+      "rowCount": 78
+    },
+    {
+      "table": "erp_projects",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "gis_arcgis_configs",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "gis_audit_logs",
+      "hasTenantId": true,
+      "rowCount": 82
+    },
+    {
+      "table": "gis_features",
+      "hasTenantId": true,
+      "rowCount": 40
+    },
+    {
+      "table": "gis_layers",
+      "hasTenantId": true,
+      "rowCount": 10
+    },
+    {
+      "table": "gis_realignments",
+      "hasTenantId": true,
+      "rowCount": 7
+    },
+    {
+      "table": "gis_regions",
+      "hasTenantId": true,
+      "rowCount": 7
+    },
+    {
+      "table": "gis_territories",
+      "hasTenantId": true,
+      "rowCount": 7
+    },
+    {
+      "table": "gis_uploaded_files",
+      "hasTenantId": true,
+      "rowCount": 16
+    },
+    {
+      "table": "hr_candidates",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "hr_employees",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "inventory_items",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "invoices",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "knowledge_articles",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "leads",
+      "hasTenantId": true,
+      "rowCount": 2
+    },
+    {
+      "table": "ledger_accounts",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "notes",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "production_orders",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "project_proposals",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "project_strategic_alignments",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "purchase_orders",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_api_keys",
+      "hasTenantId": true,
+      "rowCount": 3
+    },
+    {
+      "table": "rd_booking_histories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_budget_allocations",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_budget_revisions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_calendar_events",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_calendar_participants",
+      "hasTenantId": true,
+      "rowCount": 28
+    },
+    {
+      "table": "rd_change_requests",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_compliance_sops",
+      "hasTenantId": true,
+      "rowCount": 3
+    },
+    {
+      "table": "rd_context_comments",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_conversation_participants",
+      "hasTenantId": true,
+      "rowCount": 28
+    },
+    {
+      "table": "rd_conversations",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_dashboard_preferences",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_dataset_files",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_datasets",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_decision_gates",
+      "hasTenantId": true,
+      "rowCount": 5
+    },
+    {
+      "table": "rd_decision_histories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_decisions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_deliverables",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_document_links",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_document_versions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_employee_skills",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_enterprise_audit_logs",
+      "hasTenantId": true,
+      "rowCount": 33
+    },
+    {
+      "table": "rd_equipment_maintenances",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiment_measurements",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiment_observations",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiment_protocols",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiment_results",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiment_run_steps",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiment_runs",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_experiments",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_facilities",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_facility_bookings",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_gate_decisions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_gate_evidence",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_gate_review_comments",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_gate_reviewers",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_gate_reviews",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_gate_sign_offs",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_hypotheses",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_idea_categories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_idea_comments",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_idea_evaluation_rubrics",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_idea_evaluations",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_idea_reviewers",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_idea_votes",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_ideas",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_innovation_stages",
+      "hasTenantId": true,
+      "rowCount": 5
+    },
+    {
+      "table": "rd_integration_configs",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "rd_integration_logs",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_ip_assets",
+      "hasTenantId": true,
+      "rowCount": 3
+    },
+    {
+      "table": "rd_issue_comments",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_issues",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_knowledge_records",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_kpi_history",
+      "hasTenantId": true,
+      "rowCount": 9
+    },
+    {
+      "table": "rd_kpis",
+      "hasTenantId": true,
+      "rowCount": 6
+    },
+    {
+      "table": "rd_lab_equipment",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_mentions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_message_attachments",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_messages",
+      "hasTenantId": true,
+      "rowCount": 28
+    },
+    {
+      "table": "rd_milestones",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_notebook_contributors",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_notebooks",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_notification_preferences",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "rd_notifications",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_project_budgets",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_project_governances",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_project_stage_histories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_protocol_steps",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_quality_checkpoints",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_quality_criteria",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_requirement_criteria",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_requirements",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_research_documents",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_research_evidences",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_research_note_versions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_research_notes",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_research_objectives",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_research_outcomes",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_resource_allocations",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_resource_profiles",
+      "hasTenantId": true,
+      "rowCount": 14
+    },
+    {
+      "table": "rd_risk_mitigations",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_risk_review_histories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_risks",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_schedule_alerts",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_scope_baselines",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_scope_items",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_skills",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_sprints",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_stage_criteria",
+      "hasTenantId": true,
+      "rowCount": 15
+    },
+    {
+      "table": "rd_stage_templates",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "rd_task_dependencies",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_task_schedule_baselines",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_time_entries",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_timesheet_histories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_timesheets",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "rd_variables",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "role_permissions",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "sales_orders",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "staff_call_sessions",
+      "hasTenantId": true,
+      "rowCount": 42
+    },
+    {
+      "table": "strategic_goals",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "support_tickets",
+      "hasTenantId": true,
+      "rowCount": 5
+    },
+    {
+      "table": "tasks",
+      "hasTenantId": true,
+      "rowCount": 1
+    },
+    {
+      "table": "territories",
+      "hasTenantId": true,
+      "rowCount": 0
+    },
+    {
+      "table": "users",
+      "hasTenantId": true,
+      "rowCount": 14
+    }
+  ]
+}

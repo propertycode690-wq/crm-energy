@@ -1,0 +1,3 @@
+EgoLytics Research Report (Revision 2.0)
+Corrected peak calibration measurements.
+Surface error revised to 3.2%.

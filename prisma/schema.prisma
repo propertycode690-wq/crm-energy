@@ -1,0 +1,4259 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==============================================================================
+// ENUMS
+// ==============================================================================
+
+/// CRM 12 Business Personas mapped to stable machine-readable enum values
+enum Role {
+  BUSINESS_OWNER            // Business Owner / Executive
+  CUSTOMER                  // Client & Customer Portal
+  CONTENT_CREATOR           // AI Media & Video Creator / Content Creator
+  CONTENT_BUILDER           // Campaign & Content Builder
+  INFLUENCER                // Brand Ambassador & Influencer
+  AFFILIATE_PARTNER         // Affiliate Deal Partner
+  AI_MARKETING_PRO          // AI Marketing Specialist / Professional
+  HR                        // Human Resources Director
+  OPERATIONS_SALES_ADMIN    // Operations & Sales Administrator (Admin I)
+  FINANCE_COMPLIANCE_ADMIN  // Finance & Compliance Administrator (Admin II)
+  CRM_PRO                   // CRM & Pipeline Specialist
+  SUPER_ADMIN               // Master Super Administrator
+}
+
+/// 8 Sales Pipeline Stages verified from CRM implementation
+enum DealStage {
+  NEW_LEAD      // New Lead
+  CONTACTED     // Contacted
+  QUALIFIED     // Qualified
+  OPPORTUNITY   // Opportunity
+  PROPOSAL      // Proposal
+  NEGOTIATION   // Negotiation
+  WON           // Won
+  LOST          // Lost
+}
+
+/// Commercial Lead Statuses
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  WON
+  LOST
+}
+
+/// Task Execution Priorities
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+/// Task Lifecycle Statuses
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+/// Activity Stream & Timeline Event Types
+enum ActivityType {
+  NOTE_ADDED
+  CALL_LOGGED
+  EMAIL_SENT
+  MEETING_HELD
+  STAGE_CHANGED
+  STATUS_CHANGED
+  LEAD_CONVERTED
+  TASK_CREATED
+  TASK_COMPLETED
+}
+
+// ==============================================================================
+// CORE ENTITIES
+// ==============================================================================
+
+/// Multi-Tenant Company Organization
+model Tenant {
+  id           String     @id @default(cuid())
+  name         String
+  domain       String?
+  subscription String?    @default("ACTIVE")
+  status       String?    @default("ACTIVE")
+  parentId     String?
+  parent       Tenant?    @relation("SubTenants", fields: [parentId], references: [id], onDelete: SetNull)
+  subTenants   Tenant[]   @relation("SubTenants")
+  settings     Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Tenant Owned Resources
+  users             User[]
+  leads             Lead[]
+  contacts          Contact[]
+  deals             Deal[]
+  tasks             Task[]
+  notes             Note[]
+  activities        Activity[]
+  erpProjects       ErpProject[]
+  salesOrders       SalesOrder[]
+  purchaseOrders    PurchaseOrder[]
+  inventoryItems    InventoryItem[]
+  invoices          Invoice[]
+  communications    Communication[]
+  territories       Territory[]
+  hrEmployees       HrEmployee[]
+  hrCandidates      HrCandidate[]
+  supportTickets    SupportTicket[]
+  knowledgeArticles KnowledgeArticle[]
+  ledgerAccounts    LedgerAccount[]
+  productionOrders  ProductionOrder[]
+  eboxMessages      EboxMessage[]
+  callSessions      StaffCallSession[]
+
+  // EgoLytics R&D Entities
+  projectProposals          ProjectProposal[]
+  strategicGoals            StrategicGoal[]
+  projectStrategicAlignments ProjectStrategicAlignment[]
+  rdIdeas                   RdIdea[]
+  rdIdeaCategories          RdIdeaCategory[]
+  rdIdeaVotes               RdIdeaVote[]
+  rdIdeaComments            RdIdeaComment[]
+  rdIdeaReviewers           RdIdeaReviewer[]
+  rdIdeaRubrics             RdIdeaEvaluationRubric[]
+  rdIdeaEvaluations         RdIdeaEvaluation[]
+
+  // EgoLytics Stage-Gate Governance
+  stageTemplates            RdStageTemplate[]
+  innovationStages          RdInnovationStage[]
+  decisionGates             RdDecisionGate[]
+  projectGovernances        RdProjectGovernance[]
+  gateReviews               RdGateReview[]
+
+  // EgoLytics Task, Sprint & Scheduling (Master Prompt 05)
+  rdSprints                 RdSprint[]
+  rdTaskDependencies        RdTaskDependency[]
+  rdTaskBaselines           RdTaskScheduleBaseline[]
+  rdScheduleAlerts          RdScheduleAlert[]
+
+  // EgoLytics Collaboration & External Integrations (Master Prompt 11)
+  rdConversations           RdConversation[]
+  rdMessages                RdMessage[]
+  rdContextComments         RdContextComment[]
+  rdNotifications           RdNotification[]
+  rdCalendarEvents          RdCalendarEvent[]
+  rdIntegrations            RdIntegrationConfig[]
+
+  // EgoLytics Dashboard, Reporting & Analytics Engine (Master Prompt 12)
+  rdKpis                    RdKpi[]
+  rdDashboardPreferences    RdDashboardPreference[]
+
+  // Maplytics GIS & Territory Management (Master Prompt 13)
+  gisRegions                GisRegion[]
+  gisTerritories            GisTerritory[]
+  gisLayers                 GisLayer[]
+  gisFeatures               GisFeature[]
+  gisUploadedFiles          GisUploadedFile[]
+  gisRealignments           GisRealignment[]
+  gisArcgisConfigs          GisArcgisConfig[]
+  gisAuditLogs              GisAuditLog[]
+
+  // BFOV Charts & Core Diagramming Engine (Master Prompt 14 & 15)
+  bfovDiagrams              BfovDiagram[]
+  bfovDiagramVersions       BfovDiagramVersion[]
+  bfovDiagramComments       BfovDiagramComment[]
+  bfovDiagramShares         BfovDiagramShare[]
+  bfovAiGenerations         BfovAiGeneration[]
+
+  // Enterprise Governance, IP, Compliance, Audit & API (Master Prompt 16)
+  rdIpAssets                RdIpAsset[]
+  rdComplianceSops          RdComplianceSop[]
+  rdEnterpriseAuditLogs     RdEnterpriseAuditLog[]
+  rdApiKeys                 RdApiKey[]
+
+  
+// EgoLytics Milestone Management (Master Prompt 06)
+  rdMilestones              RdMilestone[]
+
+  // EgoLytics Research & Experiment Management (Master Prompt 07)
+  rdResearchObjectives     RdResearchObjective[]
+  rdHypotheses             RdHypothesis[]
+  rdVariables              RdVariable[]
+  rdExperimentProtocols    RdExperimentProtocol[]
+  rdProtocolSteps          RdProtocolStep[]
+  rdExperiments            RdExperiment[]
+  rdExperimentRuns         RdExperimentRun[]
+  rdExperimentRunSteps     RdExperimentRunStep[]
+  rdExperimentObservations RdExperimentObservation[]
+  rdExperimentMeasurements RdExperimentMeasurement[]
+  rdExperimentResults      RdExperimentResult[]
+  rdResearchEvidences      RdResearchEvidence[]
+  rdResearchOutcomes       RdResearchOutcome[]
+  rdResearchNotes          RdResearchNote[]
+  rdNotebooks              RdNotebook[]
+  rdNotebookContributors   RdNotebookContributor[]
+  rdResearchNoteVersions   RdResearchNoteVersion[]
+  rdResearchDocuments      RdResearchDocument[]
+  rdDocumentVersions       RdDocumentVersion[]
+  rdDocumentLinks          RdDocumentLink[]
+  rdDatasets               RdDataset[]
+  rdDatasetFiles           RdDatasetFile[]
+  rdKnowledgeRecords       RdKnowledgeRecord[]
+
+  // EgoLytics Master Prompt 09 Relations
+  rdDecisions              RdDecision[]
+  rdDecisionHistories      RdDecisionHistory[]
+  rdRisks                  RdRisk[]
+  rdRiskMitigations        RdRiskMitigation[]
+  rdRiskReviewHistories    RdRiskReviewHistory[]
+  rdIssues                 RdIssue[]
+  rdIssueComments          RdIssueComment[]
+  rdChangeRequests         RdChangeRequest[]
+  rdRequirements           RdRequirement[]
+  rdRequirementCriteria    RdRequirementCriterion[]
+  rdScopeBaselines         RdScopeBaseline[]
+  rdScopeItems             RdScopeItem[]
+  rdDeliverables           RdDeliverable[]
+  rdQualityCheckpoints     RdQualityCheckpoint[]
+  rdQualityCriteria        RdQualityCriterion[]
+  rdProjectBudgets         RdProjectBudget[]
+  rdBudgetAllocations      RdBudgetAllocation[]
+  rdBudgetRevisions        RdBudgetRevision[]
+
+  // EgoLytics Master Prompt 10 Relations
+  rdResourceProfiles        RdResourceProfile[]
+  rdResourceAllocations     RdResourceAllocation[]
+  rdSkills                  RdSkill[]
+  rdEmployeeSkills          RdEmployeeSkill[]
+  rdTimesheets              RdTimesheet[]
+  rdTimeEntries             RdTimeEntry[]
+  rdTimesheetHistories      RdTimesheetHistory[]
+  rdFacilities              RdFacility[]
+  rdLabEquipment            RdLabEquipment[]
+  rdEquipmentMaintenances   RdEquipmentMaintenance[]
+  rdFacilityBookings        RdFacilityBooking[]
+  rdBookingHistories        RdBookingHistory[]
+
+  
+  @@map("tenants")
+}
+
+/// System User with Role-Based Access Control
+model User {
+  id           String     @id @default(cuid())
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  email        String
+  passwordHash String
+  role         Role       @default(CRM_PRO)
+  isActive     Boolean    @default(true)
+  avatar       String?    @db.LongText
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Assigned CRM & ERP Entities
+  assignedLeads          Lead[]          @relation("AssignedLeads")
+  assignedContacts       Contact[]       @relation("AssignedContacts")
+  assignedDeals          Deal[]          @relation("AssignedDeals")
+  assignedTasks          Task[]          @relation("AssignedTasks")
+  assignedProjects       ErpProject[]    @relation("AssignedProjects")
+  createdNotes           Note[]          @relation("CreatedNotes")
+  loggedActivities       Activity[]      @relation("UserActivities")
+  sentCommunications     Communication[] @relation("UserCommunications")
+  assignedSupportTickets SupportTicket[] @relation("AssignedSupportTickets")
+  managedTerritories     Territory[]     @relation("ManagedTerritories")
+
+  // EgoLytics R&D Relations
+  submittedProposals     ProjectProposal[] @relation("SubmittedProposals")
+  reviewedProposals      ProjectProposal[] @relation("ReviewedProposals")
+  ownedStrategicGoals    StrategicGoal[]   @relation("OwnedStrategicGoals")
+  authoredIdeas          RdIdea[]            @relation("AuthoredIdeas")
+  createdIdeaCategories  RdIdeaCategory[]    @relation("CreatedIdeaCategories")
+  ideaVotes              RdIdeaVote[]        @relation("IdeaVotes")
+  ideaComments           RdIdeaComment[]     @relation("IdeaComments")
+  assignedIdeaReviewers  RdIdeaReviewer[]    @relation("AssignedIdeaReviewers")
+  assignedIdeaReviewersBy RdIdeaReviewer[]   @relation("IdeaReviewerAssigners")
+  evaluatorSubmissions   RdIdeaEvaluation[]  @relation("EvaluatorSubmissions")
+
+  // EgoLytics Stage-Gate Governance Relations
+  gateReviewsAssigned    RdGateReviewer[]       @relation("AssignedGateReviewers")
+  gateSignOffs           RdGateSignOff[]        @relation("UserGateSignOffs")
+  gateDecisionsMade      RdGateDecision[]       @relation("UserGateDecisions")
+  gateEvidenceUploaded   RdGateEvidence[]       @relation("UserGateEvidence")
+  gateComments           RdGateReviewComment[]  @relation("UserGateComments")
+
+  // EgoLytics Master Prompt 05 Relations
+  createdSprints         RdSprint[]             @relation("CreatedSprints")
+
+  // EgoLytics Master Prompt 11 Relations
+  rdSentMessages         RdMessage[]            @relation("UserSentMessages")
+  rdContextComments      RdContextComment[]     @relation("UserContextComments")
+  rdNotifications        RdNotification[]       @relation("UserNotifications")
+  rdCalendarEventsCreated RdCalendarEvent[]     @relation("UserCreatedEvents")
+  rdCalendarParticipations RdCalendarParticipant[] @relation("UserCalendarParticipations")
+  rdConversationParticipations RdConversationParticipant[] @relation("UserConversationParticipations")
+  rdNotificationPreferences RdNotificationPreference?
+
+  // EgoLytics Master Prompt 12 Relations
+  rdOwnedKpis            RdKpi[]                @relation("UserOwnedKpis")
+  rdDashboardPreferences RdDashboardPreference[]
+
+  // Maplytics GIS Master Prompt 13 Relations
+  gisManagedTerritories     GisTerritory[]         @relation("GisTerritoryManager")
+  gisUploadedFiles          GisUploadedFile[]      @relation("GisUserUploadedFiles")
+  gisProposedRealignments   GisRealignment[]       @relation("GisProposedRealignments")
+  gisApprovedRealignments   GisRealignment[]       @relation("GisApprovedRealignments")
+  gisAuditLogs              GisAuditLog[]          @relation("GisUserAuditLogs")
+
+  // BFOV Charts Master Prompt 14 & 15 Relations
+  bfovAuthoredDiagrams      BfovDiagram[]          @relation("BfovDiagramAuthor")
+  bfovCreatedVersions       BfovDiagramVersion[]   @relation("BfovVersionAuthor")
+  bfovCommentsAuthored      BfovDiagramComment[]   @relation("BfovCommentAuthor")
+  bfovDiagramSharesReceived BfovDiagramShare[]     @relation("BfovSharedWithUser")
+  bfovAiGenerations         BfovAiGeneration[]     @relation("BfovAiUser")
+
+  // Enterprise Governance Master Prompt 16 Relations
+  createdIpAssets           RdIpAsset[]            @relation("CreatedIpAssets")
+  ownedComplianceSops       RdComplianceSop[]      @relation("SopOwner")
+  approvedComplianceSops    RdComplianceSop[]      @relation("SopApprover")
+  enterpriseAuditLogs       RdEnterpriseAuditLog[] @relation("EnterpriseAuditUser")
+  createdApiKeys            RdApiKey[]             @relation("ApiKeyCreator")
+
+  
+// EgoLytics Master Prompt 06 Relations
+  ownedMilestones        RdMilestone[]          @relation("OwnedMilestones")
+
+  // EgoLytics Master Prompt 07 Relations
+  ownedObjectives        RdResearchObjective[]  @relation("OwnedObjectives")
+  ownedHypotheses        RdHypothesis[]         @relation("OwnedHypotheses")
+  ownedExperiments       RdExperiment[]         @relation("OwnedExperiments")
+  ownedProtocols         RdExperimentProtocol[] @relation("OwnedProtocols")
+
+  // EgoLytics Master Prompt 08 Relations
+  ownedNotebooks         RdNotebook[]           @relation("OwnedNotebooks")
+  notebookContributions  RdNotebookContributor[] @relation("NotebookUser")
+  uploadedResearchDocs   RdResearchDocument[]   @relation("UploadedDocs")
+  ownedDatasets          RdDataset[]            @relation("OwnedDatasets")
+
+  // EgoLytics Master Prompt 10 Relations
+  resourceProfile        RdResourceProfile?
+  resourceAllocations    RdResourceAllocation[]
+  employeeSkills         RdEmployeeSkill[]
+  timesheets             RdTimesheet[]
+  timeEntries            RdTimeEntry[]
+  facilityBookings       RdFacilityBooking[]
+
+  
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([email])
+  @@map("users")
+}
+
+/// Prospective Customer / Commercial Sales Lead
+model Lead {
+  id                   String          @id @default(cuid())
+  tenantId             String
+  tenant               Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedUserId       String?
+  assignedUser         User?           @relation("AssignedLeads", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  name                 String
+  company              String
+  email                String?
+  phone                String?
+  source               String?
+  territory            String?
+  status               LeadStatus      @default(NEW)
+  qualification        String?
+  score                Int             @default(75)
+  estimatedValue       Decimal?        @db.Decimal(12, 2)
+  convertedToContactId String?         @unique
+  convertedContact     Contact?        @relation("LeadConversion", fields: [convertedToContactId], references: [id], onDelete: SetNull)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  // Relations
+  deals                Deal[]
+  tasks                Task[]
+  notes                Note[]
+  activities           Activity[]
+  communications       Communication[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([assignedUserId])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+/// Address Book Contact / Account
+model Contact {
+  id             String          @id @default(cuid())
+  tenantId       String
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedUserId String?
+  assignedUser   User?           @relation("AssignedContacts", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  sourceLead     Lead?           @relation("LeadConversion")
+  name           String
+  company        String?
+  email          String?
+  phone          String?
+  type           String?         @default("Enterprise Client")
+  title          String?
+  status         String?         @default("Active")
+  lastActivity   DateTime?
+  totalValue     Decimal?        @db.Decimal(12, 2)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  // Relations
+  deals          Deal[]
+  tasks          Task[]
+  notes          Note[]
+  activities     Activity[]
+  erpProjects    ErpProject[]
+  salesOrders    SalesOrder[]
+  invoices       Invoice[]
+  communications Communication[]
+  supportTickets SupportTicket[]
+
+  @@index([tenantId])
+  @@index([tenantId, email])
+  @@index([assignedUserId])
+  @@map("contacts")
+}
+
+/// Sales Pipeline Deal / Opportunity
+model Deal {
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?     @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  leadId         String?
+  lead           Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  assignedUserId String?
+  assignedUser   User?        @relation("AssignedDeals", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  title          String
+  customer       String?
+  value          Decimal      @default(0.00) @db.Decimal(12, 2)
+  stage          DealStage    @default(NEW_LEAD)
+  probability    Int          @default(50)
+  expectedClose  DateTime?
+  description    String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relations
+  tasks          Task[]
+  notes          Note[]
+  activities     Activity[]
+  erpProject     ErpProject?
+  salesOrders    SalesOrder[]
+  invoices       Invoice[]
+
+  @@index([tenantId])
+  @@index([tenantId, stage])
+  @@index([contactId])
+  @@index([leadId])
+  @@index([assignedUserId])
+  @@map("deals")
+}
+
+/// Scheduled Task and Follow-up Reminder
+model Task {
+  id             String     @id @default(cuid())
+  tenantId       String
+  tenant         Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedUserId String?
+  assignedUser   User?      @relation("AssignedTasks", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  leadId         String?
+  lead           Lead?      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  dealId         String?
+  deal           Deal?      @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  title          String
+  description    String?    @db.Text
+  priority       Priority   @default(MEDIUM)
+  status         TaskStatus @default(PENDING)
+  dueDate        DateTime?
+  reminder       String?
+
+  // EgoLytics R&D Extensions (Master Prompt 05)
+  projectId      String?
+  project        ErpProject?             @relation("ProjectTasks", fields: [projectId], references: [id], onDelete: Cascade)
+  sprintId       String?
+  sprint         RdSprint?               @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  stageId        String?
+  stage          RdInnovationStage?      @relation("StageTasks", fields: [stageId], references: [id], onDelete: SetNull)
+  milestoneId    String?
+  milestone      RdMilestone?            @relation("MilestoneTasks", fields: [milestoneId], references: [id], onDelete: SetNull)
+  taskType       String                  @default("TASK")
+  rdStatus       String                  @default("TODO")
+  startDate      DateTime?
+  estimatedHours Float                   @default(0)
+  actualHours    Float                   @default(0)
+  progress       Int                     @default(0)
+  sortOrder      Int                     @default(0)
+  isBacklog      Boolean                 @default(false)
+
+  predecessorDependencies RdTaskDependency[]       @relation("PredecessorTask")
+  successorDependencies   RdTaskDependency[]       @relation("SuccessorTask")
+  baselines               RdTaskScheduleBaseline[]
+  scheduleAlerts          RdScheduleAlert[]
+
+  // Master Prompt 07 Experiments
+  experiments             RdExperiment[]           @relation("TaskExperiments")
+
+  // Master Prompt 10 Relations
+  timeEntries             RdTimeEntry[]
+  facilityBookings        RdFacilityBooking[]
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, rdStatus])
+  @@index([projectId])
+  @@index([sprintId])
+  @@index([assignedUserId])
+  @@index([milestoneId])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+/// Contextual Note attached to Lead, Contact, or Deal
+model Note {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation("CreatedNotes", fields: [authorId], references: [id], onDelete: SetNull)
+  leadId    String?
+  lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  dealId    String?
+  deal      Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([leadId])
+  @@index([contactId])
+  @@index([dealId])
+  @@index([authorId])
+  @@map("notes")
+}
+
+/// Audit Log & Timeline Activity Stream
+model Activity {
+  id          String       @id @default(cuid())
+  tenantId    String
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?        @relation("UserActivities", fields: [userId], references: [id], onDelete: SetNull)
+  leadId      String?
+  lead        Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contactId   String?
+  contact     Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  dealId      String?
+  deal        Deal?        @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  type        ActivityType
+  title       String
+  description String?      @db.Text
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, createdAt])
+  @@index([leadId])
+  @@index([contactId])
+  @@index([dealId])
+  @@index([userId])
+  @@map("activities")
+}
+
+// ==============================================================================
+// ERP & OPERATIONS ENTITIES
+// ==============================================================================
+
+/// ERP Project Delivery Record
+model ErpProject {
+  id             String       @id @default(cuid())
+  tenantId       String
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  dealId         String?      @unique
+  deal           Deal?        @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  contactId      String?
+  contact        Contact?     @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  assignedUserId String?
+  assignedUser   User?        @relation("AssignedProjects", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  name           String
+  client         String
+  budget         Decimal      @default(0.00) @db.Decimal(12, 2)
+  spent          Decimal      @default(0.00) @db.Decimal(12, 2)
+  progress       Int          @default(0)
+  status         String       @default("In Progress")
+  manager        String?
+  deadline       DateTime?
+  salesOrders    SalesOrder[]
+  invoices       Invoice[]
+
+  // EgoLytics R&D Extensions
+  projectType         String                      @default("COMMERCIAL")
+  priority            String                      @default("MEDIUM")
+  priorityScore       Float                       @default(50.0)
+  riskScore           Float                       @default(30.0)
+  roiScore            Float                       @default(70.0)
+  feasibilityScore    Float                       @default(70.0)
+  strategicCategory   String?
+  stage               String?                     @default("IDEA")
+  startDate           DateTime?
+  isArchived          Boolean                     @default(false)
+  intakeProposal      ProjectProposal?            @relation("ProposalToProject")
+  strategicAlignments ProjectStrategicAlignment[]
+  governance          RdProjectGovernance?
+
+  // Master Prompt 05 Relations
+  tasks               Task[]                      @relation("ProjectTasks")
+  sprints             RdSprint[]
+  scheduleBaselines   RdTaskScheduleBaseline[]
+  scheduleAlerts      RdScheduleAlert[]
+
+  // Master Prompt 11 Relations
+  conversations       RdConversation[]            @relation("ProjectConversations")
+  calendarEvents      RdCalendarEvent[]           @relation("ProjectCalendarEvents")
+
+  // Master Prompt 14 Relations
+  bfovDiagrams        BfovDiagram[]
+
+  // Master Prompt 16 Relations
+  ipAssets            RdIpAsset[]
+
+  
+// Master Prompt 06 Relations
+  milestones          RdMilestone[]
+
+  // Master Prompt 07 Relations
+  researchObjectives  RdResearchObjective[]
+  hypotheses          RdHypothesis[]
+  experiments         RdExperiment[]
+  researchEvidences   RdResearchEvidence[]
+  researchOutcomes    RdResearchOutcome[]
+  researchNotes       RdResearchNote[]
+
+  // Master Prompt 08 Relations
+  notebooks           RdNotebook[]
+  researchDocuments   RdResearchDocument[]
+  datasets            RdDataset[]
+
+  // Master Prompt 09 Relations
+  decisions           RdDecision[]
+  risks               RdRisk[]
+  issues              RdIssue[]
+  changeRequests      RdChangeRequest[]
+  requirements        RdRequirement[]
+  scopeBaselines      RdScopeBaseline[]
+  scopeItems          RdScopeItem[]
+  deliverables        RdDeliverable[]
+  qualityCheckpoints  RdQualityCheckpoint[]
+  projectBudgets      RdProjectBudget[]
+
+  // Master Prompt 10 Relations
+  resourceAllocations RdResourceAllocation[]
+  timeEntries         RdTimeEntry[]
+  facilityBookings    RdFacilityBooking[]
+
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([tenantId])
+  @@index([contactId])
+  @@index([dealId])
+  @@map("erp_projects")
+}
+
+/// ERP Sales & Fulfillment Order
+model SalesOrder {
+  id          String      @id @default(cuid())
+  tenantId    String
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  dealId      String?
+  deal        Deal?       @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  contactId   String?
+  contact     Contact?    @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  projectId   String?
+  project     ErpProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  orderNumber String?
+  customer    String
+  items       String      @db.Text
+  total       Decimal     @default(0.00) @db.Decimal(12, 2)
+  status      String      @default("Processing")
+  date        DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([dealId])
+  @@index([projectId])
+  @@index([contactId])
+  @@map("sales_orders")
+}
+
+/// ERP Procurement Purchase Order
+model PurchaseOrder {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  poNumber  String?
+  vendor    String
+  items     String   @db.Text
+  amount    Decimal  @default(0.00) @db.Decimal(12, 2)
+  status    String   @default("Pending Approval")
+  eta       String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("purchase_orders")
+}
+
+/// ERP Inventory & Warehouse SKU Stock Item
+model InventoryItem {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sku          String
+  name         String
+  category     String   @default("Hardware")
+  warehouse    String   @default("Austin Central")
+  quantity     Int      @default(0)
+  minThreshold Int      @default(50)
+  unitCost     Decimal  @default(0.00) @db.Decimal(12, 2)
+  status       String   @default("Optimal")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("inventory_items")
+}
+
+// ==============================================================================
+// BILLING & INVOICING
+// ==============================================================================
+
+/// Commercial Invoice
+model Invoice {
+  id            String      @id @default(cuid())
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoiceNumber String
+  customerId    String?
+  customer      Contact?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName  String
+  customerEmail String?
+  dealId        String?
+  deal          Deal?       @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  projectId     String?
+  project       ErpProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  amount        Decimal     @default(0.00) @db.Decimal(12, 2)
+  subtotal      Decimal     @default(0.00) @db.Decimal(12, 2)
+  tax           Decimal     @default(0.00) @db.Decimal(12, 2)
+  discount      Decimal     @default(0.00) @db.Decimal(12, 2)
+  status        String      @default("Sent")
+  dueDate       DateTime?
+  issueDate     DateTime    @default(now())
+  items         Json?
+  notes         String?     @db.Text
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([customerId])
+  @@index([dealId])
+  @@index([projectId])
+  @@map("invoices")
+}
+
+// ==============================================================================
+// COMMUNICATION SYSTEM (EMAIL & SMS)
+// ==============================================================================
+
+/// Multi-Channel Communication Record
+model Communication {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?    @relation("UserCommunications", fields: [userId], references: [id], onDelete: SetNull)
+  contactId    String?
+  contact      Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  leadId       String?
+  lead         Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  channel      String   @default("EMAIL")
+  direction    String   @default("OUTBOUND")
+  sender       String
+  recipient    String
+  subject      String?
+  body         String   @db.Text
+  status       String   @default("SENT")
+  provider     String?  @default("INTERNAL")
+  errorDetails String?
+  attachments  Json?
+  createdAt    DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([contactId])
+  @@index([leadId])
+  @@index([userId])
+  @@map("communications")
+}
+
+// ==============================================================================
+// TERRITORY MANAGEMENT
+// ==============================================================================
+
+/// Sales Geographic Territory
+model Territory {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  code        String
+  name        String
+  region      String
+  states      String?
+  managerId   String?
+  manager     User?    @relation("ManagedTerritories", fields: [managerId], references: [id], onDelete: SetNull)
+  targetQuota Decimal  @default(0.00) @db.Decimal(12, 2)
+  status      String   @default("Active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([managerId])
+  @@map("territories")
+}
+
+// ==============================================================================
+// HUMAN RESOURCES (HR) MODULE
+// ==============================================================================
+
+/// HR Employee Directory Record
+model HrEmployee {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  employeeId    String
+  name          String
+  email         String
+  phone         String?
+  department    String
+  designation   String
+  salary        Decimal  @default(0.00) @db.Decimal(12, 2)
+  joiningDate   DateTime @default(now())
+  status        String   @default("Active")
+  payrollStatus String   @default("Processed")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("hr_employees")
+}
+
+/// HR Recruiting Candidate Record
+model HrCandidate {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  phone       String?
+  role        String
+  stage       String   @default("Applied")
+  score       Int      @default(85)
+  experience  String?
+  resumeUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("hr_candidates")
+}
+
+// ==============================================================================
+// CUSTOMER SUPPORT & KNOWLEDGE BASE
+// ==============================================================================
+
+/// Support Ticket Record
+model SupportTicket {
+  id             String   @id @default(cuid())
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ticketNumber   String
+  title          String
+  description    String   @db.Text
+  category       String   @default("Technical")
+  priority       String   @default("Medium")
+  status         String   @default("Open")
+  assignedUserId String?
+  assignedUser   User?    @relation("AssignedSupportTickets", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  contactId      String?
+  contact        Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  slaHours       Int      @default(24)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([assignedUserId])
+  @@index([contactId])
+  @@map("support_tickets")
+}
+
+/// Knowledge Base Article
+model KnowledgeArticle {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title       String
+  category    String
+  content     String   @db.Text
+  views       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("knowledge_articles")
+}
+
+// ==============================================================================
+// ERP FINANCE & GENERAL LEDGER
+// ==============================================================================
+
+/// General Ledger Account Record
+model LedgerAccount {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  code        String
+  accountName String
+  type        String
+  balance     Decimal  @default(0.00) @db.Decimal(12, 2)
+  status      String   @default("Reconciled")
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("ledger_accounts")
+}
+
+// ==============================================================================
+// ERP MANUFACTURING
+// ==============================================================================
+
+/// Manufacturing Production Order
+model ProductionOrder {
+  id             String    @id @default(cuid())
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderNumber    String
+  productName    String
+  quantity       Int       @default(1)
+  bomCode        String?
+  status         String    @default("Scheduled")
+  startDate      DateTime?
+  completionDate DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@map("production_orders")
+}
+
+// ==============================================================================
+// SECURED EBOX ADMINISTRATIVE SYSTEM
+// ==============================================================================
+
+/// Encrypted Administrative eBox Message
+model EboxMessage {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  senderId    String
+  senderName  String
+  recipient   String   @default("Kiaan Tech Team")
+  subject     String
+  message     String   @db.LongText
+  priority    String   @default("Normal")
+  isEncrypted Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId])
+  @@map("ebox_messages")
+}
+
+// ==============================================================================
+// CROSS-PLATFORM INTERNAL STAFF CALL SESSIONS
+// ==============================================================================
+
+/// Internal Staff Call Session Record
+model StaffCallSession {
+  id                  String    @id @default(cuid())
+  tenantId            String
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  conversationId      String?
+  callType            String    @default("audio")
+  callerPlatformId    String
+  callerStaffId       String
+  callerName          String
+  recipientPlatformId String
+  recipientStaffId    String
+  recipientName       String
+  status              String    @default("initiated")
+  startedAt           DateTime  @default(now())
+  connectedAt         DateTime?
+  endedAt             DateTime?
+  durationSeconds     Int       @default(0)
+  terminationReason   String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([status])
+  @@index([callerStaffId])
+  @@index([recipientStaffId])
+  @@index([tenantId])
+  @@map("staff_call_sessions")
+}
+
+/// Dynamic Role-Based Access Control Menu Permissions per Tenant
+model RolePermission {
+  id            String   @id @default(cuid())
+  tenantId      String
+  roleId        String
+  allowedNavIds String   @db.LongText
+  allowedRoutes String?  @db.LongText
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([tenantId, roleId], map: "unique_tenant_role")
+  @@index([tenantId])
+  @@map("role_permissions")
+}
+
+// ==============================================================================
+// EGOLYTICS R&D MANAGEMENT ENTITIES (MASTER PROMPT 02)
+// ==============================================================================
+
+/// EgoLytics R&D Project Intake Proposal
+model ProjectProposal {
+  id                      String                     @id @default(cuid())
+  tenantId                String
+  tenant                  Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  referenceNumber         String
+  title                   String
+  summary                 String?                    @db.Text
+  description             String?                    @db.LongText
+  category                String                     @default("Product Innovation")
+  problemStatement        String?                    @db.Text
+  expectedOutcomes        String?                    @db.Text
+  estimatedBudget         Decimal                    @default(0.00) @db.Decimal(12, 2)
+  estimatedDurationMonths Int                        @default(6)
+  proposedStartDate       DateTime?
+  expectedCompletionDate  DateTime?
+  submittingUserId        String?
+  submittingUser          User?                      @relation("SubmittedProposals", fields: [submittingUserId], references: [id], onDelete: SetNull)
+  status                  String                     @default("DRAFT")
+  reviewerId              String?
+  reviewer                User?                      @relation("ReviewedProposals", fields: [reviewerId], references: [id], onDelete: SetNull)
+  reviewComments          String?                    @db.Text
+  rejectionReason         String?                    @db.Text
+  moreInfoNotes           String?                    @db.Text
+  convertedProjectId      String?                    @unique
+  convertedProject        ErpProject?                @relation("ProposalToProject", fields: [convertedProjectId], references: [id], onDelete: SetNull)
+  strategicGoalId         String?
+  strategicGoal           StrategicGoal?             @relation(fields: [strategicGoalId], references: [id], onDelete: SetNull)
+  expectedRoi             Float                      @default(50.0)
+  riskAssessment          String?                    @default("MEDIUM")
+  feasibilityScore        Float                      @default(70.0)
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([submittingUserId])
+  @@index([reviewerId])
+  @@index([strategicGoalId])
+  @@index([tenantId, referenceNumber])
+  @@map("project_proposals")
+}
+
+/// EgoLytics Strategic Goal
+model StrategicGoal {
+  id                String                      @id @default(cuid())
+  tenantId          String
+  tenant            Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  code              String
+  title             String
+  description       String?                     @db.Text
+  category          String                      @default("Growth & Innovation")
+  targetYear        Int                         @default(2026)
+  targetValue       String?
+  status            String                      @default("ACTIVE")
+  ownerId           String?
+  owner             User?                       @relation("OwnedStrategicGoals", fields: [ownerId], references: [id], onDelete: SetNull)
+  proposals         ProjectProposal[]
+  projectAlignments ProjectStrategicAlignment[]
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([ownerId])
+  @@map("strategic_goals")
+}
+
+/// EgoLytics Project to Strategic Goal Alignment
+model ProjectStrategicAlignment {
+  id                 String        @id @default(cuid())
+  tenantId           String
+  tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  projectId          String
+  project            ErpProject    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  goalId             String
+  goal               StrategicGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  alignmentRationale String?       @db.Text
+  impactWeight       Float         @default(1.0)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@unique([projectId, goalId], map: "unique_project_goal")
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([goalId])
+  @@map("project_strategic_alignments")
+}
+
+// ==============================================================================
+// EGOLYTICS R&D MANAGEMENT ENTITIES (MASTER PROMPT 03: IDEAS & SCORING)
+// ==============================================================================
+
+/// EgoLytics Idea Category
+model RdIdeaCategory {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?  @db.Text
+  color        String?  @default("#3b82f6")
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdById  String?
+  createdBy    User?    @relation("CreatedIdeaCategories", fields: [createdById], references: [id], onDelete: SetNull)
+  ideas        RdIdea[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([tenantId, name], map: "unique_tenant_idea_category")
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("rd_idea_categories")
+}
+
+/// EgoLytics Research Idea Record
+model RdIdea {
+  id               String               @id @default(cuid())
+  tenantId         String
+  tenant           Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  referenceNumber  String
+  title            String
+  summary          String?              @db.Text
+  problemStatement String?              @db.Text
+  proposedSolution String?              @db.Text
+  description      String?              @db.LongText
+  expectedBenefits String?              @db.Text
+  categoryId       String?
+  category         RdIdeaCategory?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags             String?              @db.Text
+  status           String               @default("DRAFT")
+  rejectionReason  String?              @db.Text
+  moreInfoNotes    String?              @db.Text
+  authorId         String?
+  author           User?                @relation("AuthoredIdeas", fields: [authorId], references: [id], onDelete: SetNull)
+  voteCount        Int                  @default(0)
+  evaluationCount  Int                  @default(0)
+  compositeScore   Float?
+  votes            RdIdeaVote[]
+  comments         RdIdeaComment[]
+  reviewers        RdIdeaReviewer[]
+  evaluations      RdIdeaEvaluation[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([compositeScore])
+  @@index([tenantId, referenceNumber])
+  @@map("rd_ideas")
+}
+
+/// EgoLytics Idea Upvote (1 vote per user per idea)
+model RdIdeaVote {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ideaId    String
+  idea      RdIdea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("IdeaVotes", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([ideaId, userId], map: "unique_idea_user_vote")
+  @@index([tenantId])
+  @@index([ideaId])
+  @@index([userId])
+  @@map("rd_idea_votes")
+}
+
+/// EgoLytics Idea Discussion Comment
+model RdIdeaComment {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ideaId    String
+  idea      RdIdea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("IdeaComments", fields: [userId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([ideaId])
+  @@index([userId])
+  @@map("rd_idea_comments")
+}
+
+/// EgoLytics Assigned Reviewer for Idea
+model RdIdeaReviewer {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ideaId       String
+  idea         RdIdea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  reviewerId   String
+  reviewer     User     @relation("AssignedIdeaReviewers", fields: [reviewerId], references: [id], onDelete: Cascade)
+  assignedById String?
+  assignedBy   User?    @relation("IdeaReviewerAssigners", fields: [assignedById], references: [id], onDelete: SetNull)
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([ideaId, reviewerId], map: "unique_idea_reviewer")
+  @@index([tenantId])
+  @@index([ideaId])
+  @@index([reviewerId])
+  @@map("rd_idea_reviewers")
+}
+
+/// EgoLytics Evaluation Rubric (Versioned)
+model RdIdeaEvaluationRubric {
+  id          String                      @id @default(cuid())
+  tenantId    String
+  tenant      Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  version     Int                         @default(1)
+  isActive    Boolean                     @default(true)
+  scale       String                      @default("1_TO_5")
+  criteria    RdIdeaEvaluationCriterion[]
+  evaluations RdIdeaEvaluation[]
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("rd_idea_evaluation_rubrics")
+}
+
+/// EgoLytics Evaluation Criterion
+model RdIdeaEvaluationCriterion {
+  id           String                  @id @default(cuid())
+  rubricId     String
+  rubric       RdIdeaEvaluationRubric  @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?                 @db.Text
+  weight       Float
+  direction    String                  @default("HIGHER_IS_BETTER")
+  displayOrder Int                     @default(0)
+  scores       RdIdeaEvaluationScore[]
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  @@index([rubricId])
+  @@map("rd_idea_evaluation_criteria")
+}
+
+/// EgoLytics Idea Evaluation (Evaluator Submission)
+model RdIdeaEvaluation {
+  id            String                  @id @default(cuid())
+  tenantId      String
+  tenant        Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ideaId        String
+  idea          RdIdea                  @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  evaluatorId   String
+  evaluator     User                    @relation("EvaluatorSubmissions", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  rubricId      String
+  rubric        RdIdeaEvaluationRubric  @relation(fields: [rubricId], references: [id], onDelete: Restrict)
+  rubricVersion Int                     @default(1)
+  weightedScore Float                   @default(0.0)
+  comments      String?                 @db.Text
+  status        String                  @default("DRAFT")
+  submittedAt   DateTime?
+  scores        RdIdeaEvaluationScore[]
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  @@unique([ideaId, evaluatorId], map: "unique_idea_evaluator")
+  @@index([tenantId])
+  @@index([ideaId])
+  @@index([evaluatorId])
+  @@index([status])
+  @@map("rd_idea_evaluations")
+}
+
+/// EgoLytics Evaluation Criterion Score
+model RdIdeaEvaluationScore {
+  id                   String                     @id @default(cuid())
+  evaluationId         String
+  evaluation           RdIdeaEvaluation           @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  criterionId          String
+  criterion            RdIdeaEvaluationCriterion  @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+  rawScore             Float
+  normalizedScore      Float
+  weight               Float
+  weightedContribution Float
+  criterionComments    String?                    @db.Text
+  createdAt            DateTime                   @default(now())
+
+  @@unique([evaluationId, criterionId], map: "unique_evaluation_criterion")
+  @@index([evaluationId])
+  @@index([criterionId])
+  @@map("rd_idea_evaluation_scores")
+}
+
+// ============================================================================
+// EGOLYTICS MASTER PROMPT 04 — STAGE-GATE GOVERNANCE & APPROVAL WORKFLOW
+// ============================================================================
+
+/// Reusable Stage-Gate Innovation Template
+model RdStageTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  code        String
+  description String?  @db.Text
+  version     Int      @default(1)
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stages       RdInnovationStage[]
+  governances  RdProjectGovernance[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@map("rd_stage_templates")
+}
+
+/// Individual Innovation Stage within a Template
+model RdInnovationStage {
+  id                   String   @id @default(cuid())
+  tenantId             String
+  templateId           String
+  name                 String
+  code                 String
+  stageNumber          Int      @default(1)
+  description          String?  @db.Text
+  expectedDeliverables String?  @db.Text
+  responsibleRole      String?  @default("RD_LEAD")
+  color                String   @default("#3b82f6")
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  tenant        Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  template      RdStageTemplate         @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  criteria      RdStageCriterion[]
+  gate          RdDecisionGate?
+  governances   RdProjectGovernance[]   @relation("CurrentStageGovernances")
+  reviews       RdGateReview[]
+  historiesFrom RdProjectStageHistory[] @relation("HistoryFromStage")
+  historiesTo   RdProjectStageHistory[] @relation("HistoryToStage")
+  tasks         Task[]                  @relation("StageTasks")
+
+  @@unique([templateId, stageNumber])
+  @@index([tenantId, templateId])
+  @@map("rd_innovation_stages")
+}
+
+/// Stage Entry and Exit Criteria
+model RdStageCriterion {
+  id               String   @id @default(cuid())
+  tenantId         String
+  stageId          String
+  name             String
+  description      String?  @db.Text
+  type             String   @default("EXIT") // ENTRY or EXIT
+  isMandatory      Boolean  @default(true)
+  evidenceRequired Boolean  @default(false)
+  sortOrder        Int      @default(1)
+  validationRule   String?  @db.Text
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  stage    RdInnovationStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  evidence RdGateEvidence[]
+
+  @@index([stageId, type])
+  @@map("rd_stage_criteria")
+}
+
+/// Decision Gate associated with an Innovation Stage
+model RdDecisionGate {
+  id                   String   @id @default(cuid())
+  tenantId             String
+  stageId              String   @unique
+  name                 String
+  code                 String
+  description          String?  @db.Text
+  gateOrder            Int      @default(1)
+  approvalPolicy       String   @default("ALL_MUST_APPROVE") // ALL_MUST_APPROVE, MINIMUM_COUNT, SINGLE_GATEKEEPER
+  requiredSignOffCount Int      @default(1)
+  reviewInstructions   String?  @db.Text
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  tenant      Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stage       RdInnovationStage     @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  governances RdProjectGovernance[]  @relation("CurrentGateGovernances")
+  reviews     RdGateReview[]
+  decisions   RdGateDecision[]
+
+  @@index([tenantId])
+  @@map("rd_decision_gates")
+}
+
+/// Active Governance Instance for an R&D Project
+model RdProjectGovernance {
+  id                String    @id @default(cuid())
+  tenantId          String
+  projectId         String    @unique
+  templateId        String
+  templateVersion   Int       @default(1)
+  currentStageId    String?
+  currentGateId     String?
+  governanceStatus  String    @default("ACTIVE") // ACTIVE, ON_HOLD, REWORK_REQUIRED, TERMINATED, COMPLETED
+  holdReason        String?   @db.Text
+  terminationReason String?   @db.Text
+  originIdeaId      String?
+  originProposalId  String?
+  startedAt         DateTime  @default(now())
+  lastTransitionAt  DateTime  @default(now())
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tenant       Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project      ErpProject              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  template     RdStageTemplate         @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  currentStage RdInnovationStage?      @relation("CurrentStageGovernances", fields: [currentStageId], references: [id], onDelete: SetNull)
+  currentGate  RdDecisionGate?         @relation("CurrentGateGovernances", fields: [currentGateId], references: [id], onDelete: SetNull)
+  reviews      RdGateReview[]
+  history      RdProjectStageHistory[]
+  decisions    RdGateDecision[]
+
+  @@index([tenantId, governanceStatus])
+  @@index([projectId])
+  @@map("rd_project_governances")
+}
+
+/// Chronological Stage Progression History
+model RdProjectStageHistory {
+  id                String   @id @default(cuid())
+  tenantId          String
+  governanceId      String
+  projectId         String
+  fromStageId       String?
+  toStageId         String?
+  fromStageName     String?
+  toStageName       String?
+  triggerGateId     String?
+  triggerDecisionId String?
+  eventType         String   // INITIALIZED, SUBMITTED_FOR_REVIEW, ADVANCED, HELD, RESUMED, REWORK_REQUESTED, TERMINATED, COMPLETED
+  actorId           String?
+  actorName         String?
+  reason            String?  @db.Text
+  notes             String?  @db.Text
+  metadata          Json?
+  createdAt         DateTime @default(now())
+
+  governance RdProjectGovernance @relation(fields: [governanceId], references: [id], onDelete: Cascade)
+  fromStage  RdInnovationStage?  @relation("HistoryFromStage", fields: [fromStageId], references: [id], onDelete: SetNull)
+  toStage    RdInnovationStage?  @relation("HistoryToStage", fields: [toStageId], references: [id], onDelete: SetNull)
+
+  @@index([governanceId])
+  @@index([projectId])
+  @@index([createdAt])
+  @@map("rd_project_stage_histories")
+}
+
+/// Formal Gate Review Cycle Instance
+model RdGateReview {
+  id                     String    @id @default(cuid())
+  tenantId               String
+  governanceId           String
+  projectId              String
+  gateId                 String
+  stageId                String
+  cycleNumber            Int       @default(1)
+  status                 String    @default("READY_FOR_REVIEW") // READY_FOR_REVIEW, SUBMITTED, UNDER_REVIEW, MORE_INFO_REQUIRED, APPROVED, REWORK_REQUIRED, ON_HOLD, REJECTED, CANCELLED
+  submittedById          String?
+  submittedAt            DateTime?
+  summary                String?   @db.Text
+  notes                  String?   @db.Text
+  moreInfoRequestedNotes String?   @db.Text
+  moreInfoResponse       String?   @db.Text
+  criteriaCompletedCount Int       @default(0)
+  criteriaTotalCount     Int       @default(0)
+  allCriteriaMet         Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  governance RdProjectGovernance   @relation(fields: [governanceId], references: [id], onDelete: Cascade)
+  gate       RdDecisionGate        @relation(fields: [gateId], references: [id], onDelete: Cascade)
+  stage      RdInnovationStage     @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  reviewers  RdGateReviewer[]
+  signOffs   RdGateSignOff[]
+  evidence   RdGateEvidence[]
+  decisions  RdGateDecision[]
+  comments   RdGateReviewComment[]
+
+  @@index([tenantId, status])
+  @@index([governanceId])
+  @@index([gateId])
+  @@map("rd_gate_reviews")
+}
+
+/// Assigned Reviewer or Gatekeeper for a Gate Review
+model RdGateReviewer {
+  id           String    @id @default(cuid())
+  tenantId     String
+  reviewId     String
+  userId       String
+  role         String    @default("GATEKEEPER") // GATEKEEPER, TECHNICAL_REVIEWER, FINANCIAL_REVIEWER, EXECUTIVE
+  status       String    @default("PENDING") // PENDING, IN_REVIEW, SIGN_OFF_SUBMITTED
+  assignedById String?
+  assignedAt   DateTime  @default(now())
+
+  review   RdGateReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewer User         @relation("AssignedGateReviewers", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, userId], map: "unique_gate_review_user")
+  @@index([reviewId])
+  @@index([userId])
+  @@map("rd_gate_reviewers")
+}
+
+/// Individual Gatekeeper or Reviewer Formal Sign-Off
+model RdGateSignOff {
+  id             String   @id @default(cuid())
+  tenantId       String
+  reviewId       String
+  userId         String
+  recommendation String   // APPROVE, REJECT, REWORK, HOLD, MORE_INFO
+  comments       String?  @db.Text
+  signedOffAt    DateTime @default(now())
+
+  review RdGateReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User         @relation("UserGateSignOffs", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, userId], map: "unique_gate_review_signoff_user")
+  @@index([reviewId])
+  @@index([userId])
+  @@map("rd_gate_sign_offs")
+}
+
+/// Formal Authoritative Gate Decision Record
+model RdGateDecision {
+  id               String   @id @default(cuid())
+  tenantId         String
+  reviewId         String
+  governanceId     String
+  projectId        String
+  gateId           String
+  decision         String   // GO_CONTINUE, HOLD, REWORK_RECYCLE, TERMINATE_KILL, REQUEST_MORE_INFO
+  decisionReason   String   @db.Text
+  decisionComments String?  @db.Text
+  decisionMakerId  String
+  decidedAt        DateTime @default(now())
+
+  review     RdGateReview        @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  governance RdProjectGovernance @relation(fields: [governanceId], references: [id], onDelete: Cascade)
+  gate       RdDecisionGate      @relation(fields: [gateId], references: [id], onDelete: Cascade)
+  maker      User                @relation("UserGateDecisions", fields: [decisionMakerId], references: [id], onDelete: Cascade)
+
+  @@index([governanceId])
+  @@index([reviewId])
+  @@index([gateId])
+  @@map("rd_gate_decisions")
+}
+
+/// Evidence Uploaded or Linked to Gate Reviews and Criteria
+model RdGateEvidence {
+  id            String   @id @default(cuid())
+  tenantId      String
+  reviewId      String
+  projectId     String
+  criterionId   String?
+  title         String
+  description   String?  @db.Text
+  evidenceType  String   @default("DOCUMENT") // DOCUMENT, DATASET, REPORT, URL, EXTERNAL_TEST
+  fileUrl       String?
+  fileSize      Int?
+  uploadedById  String
+  uploadedAt    DateTime @default(now())
+  status        String   @default("PENDING_REVIEW") // PENDING_REVIEW, ACCEPTED, REJECTED
+  reviewerNotes String?  @db.Text
+
+  review    RdGateReview      @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  criterion RdStageCriterion? @relation(fields: [criterionId], references: [id], onDelete: SetNull)
+  uploader  User              @relation("UserGateEvidence", fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([projectId])
+  @@map("rd_gate_evidence")
+}
+
+/// Discussion Comments on Gate Reviews
+model RdGateReviewComment {
+  id        String   @id @default(cuid())
+  tenantId  String
+  reviewId  String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  review RdGateReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  author User         @relation("UserGateComments", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@map("rd_gate_review_comments")
+}
+
+// ==============================================================================
+// MASTER PROMPT 05: ADVANCED TASK, SPRINT & BACKLOG MANAGEMENT
+// ==============================================================================
+
+/// Sprint Iteration Boundary
+model RdSprint {
+  id            String    @id @default(cuid())
+  tenantId      String
+  projectId     String?
+  name          String
+  code          String?
+  goal          String?   @db.Text
+  startDate     DateTime?
+  endDate       DateTime?
+  status        String    @default("PLANNED") // PLANNED, ACTIVE, COMPLETED, CANCELLED
+  capacityHours Float     @default(0)
+  velocity      Float     @default(0)
+  completedAt   DateTime?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project   ErpProject? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator   User?       @relation("CreatedSprints", fields: [createdById], references: [id], onDelete: SetNull)
+  tasks     Task[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([projectId])
+  @@map("rd_sprints")
+}
+
+/// Predecessor-Successor Directed Dependency Edge
+model RdTaskDependency {
+  id             String   @id @default(cuid())
+  tenantId       String
+  predecessorId  String
+  successorId    String
+  dependencyType String   @default("FS") // FS, SS, FF, SF
+  lagDays        Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  tenant      Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  predecessor Task   @relation("PredecessorTask", fields: [predecessorId], references: [id], onDelete: Cascade)
+  successor   Task   @relation("SuccessorTask", fields: [successorId], references: [id], onDelete: Cascade)
+
+  @@unique([predecessorId, successorId])
+  @@index([tenantId])
+  @@index([predecessorId])
+  @@index([successorId])
+  @@map("rd_task_dependencies")
+}
+
+/// Baseline Schedule Snapshot for Variance & Drift Analysis
+model RdTaskScheduleBaseline {
+  id                  String    @id @default(cuid())
+  tenantId            String
+  taskId              String
+  projectId           String?
+  baselineStartDate   DateTime?
+  baselineEndDate     DateTime?
+  plannedDurationDays Int       @default(1)
+  version             Int       @default(1)
+  createdAt           DateTime  @default(now())
+
+  tenant  Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  task    Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project ErpProject? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([taskId])
+  @@index([projectId])
+  @@map("rd_task_schedule_baselines")
+}
+
+/// Automated Schedule Variance & Blocker Alerts
+model RdScheduleAlert {
+  id          String    @id @default(cuid())
+  tenantId    String
+  projectId   String?
+  taskId      String?
+  alertType   String // OVERDUE, DUE_SOON, CRITICAL_PATH_DELAY, DEPENDENCY_BLOCKED
+  severity    String    @default("WARNING") // INFO, WARNING, CRITICAL
+  message     String    @db.Text
+  status      String    @default("ACTIVE") // ACTIVE, ACKNOWLEDGED, RESOLVED
+  detectedAt  DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  tenant  Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project ErpProject? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task    Task?       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([projectId])
+  @@index([taskId])
+  @@map("rd_schedule_alerts")
+}
+
+// ==============================================================================
+// MASTER PROMPT 06: DYNAMIC MILESTONES & ROADMAPS
+// ==============================================================================
+
+/// Dynamic Project Milestone
+model RdMilestone {
+  id                    String    @id @default(cuid())
+  tenantId              String
+  projectId             String
+  title                 String
+  description           String?   @db.Text
+  milestoneCode         String?
+  milestoneType         String    @default("DELIVERABLE") // DELIVERABLE, STAGE_GATE, REVIEW, DECISION, RELEASE
+  plannedStartDate      DateTime?
+  plannedEndDate        DateTime?
+  actualStartDate       DateTime?
+  actualCompletionDate  DateTime?
+  status                String    @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED, DELAYED, ON_HOLD, CANCELLED
+  progress              Int       @default(0) // 0-100%
+  priority              String    @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  ownerId               String?
+  sortOrder             Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  tenant  Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project ErpProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner   User?      @relation("OwnedMilestones", fields: [ownerId], references: [id], onDelete: SetNull)
+  tasks   Task[]     @relation("MilestoneTasks")
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([projectId])
+  @@map("rd_milestones")
+}
+
+// ==============================================================================
+// MASTER PROMPT 07: RESEARCH HYPOTHESIS & EXPERIMENT MANAGEMENT
+// ==============================================================================
+
+model RdResearchObjective {
+  id               String       @id @default(cuid())
+  tenantId         String
+  projectId        String
+  title            String
+  description      String?      @db.Text
+  researchQuestion String?      @db.Text
+  category         String       @default("APPLIED_RESEARCH")
+  priority         String       @default("MEDIUM")
+  status           String       @default("ACTIVE") // DRAFT, ACTIVE, ON_HOLD, COMPLETED, CANCELLED
+  ownerId          String?
+  startDate        DateTime?
+  targetDate       DateTime?
+  completionDate   DateTime?
+  successCriteria  String?      @db.Text
+  progress         Int          @default(0) // 0-100%
+  createdById      String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project     ErpProject           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner       User?                @relation("OwnedObjectives", fields: [ownerId], references: [id], onDelete: SetNull)
+  hypotheses  RdHypothesis[]
+  experiments RdExperiment[]
+  evidences   RdResearchEvidence[]
+  outcomes    RdResearchOutcome[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([status])
+  @@index([ownerId])
+  @@map("rd_research_objectives")
+}
+
+model RdHypothesis {
+  id                    String                @id @default(cuid())
+  tenantId              String
+  projectId             String
+  objectiveId           String?
+  hypothesisCode        String?
+  title                 String
+  statement             String                @db.Text
+  description           String?               @db.Text
+  scientificRationale   String?               @db.Text
+  expectedOutcome       String?               @db.Text
+  hypothesisType        String                @default("ALTERNATIVE_HYPOTHESIS") // NULL_HYPOTHESIS, ALTERNATIVE_HYPOTHESIS, DIRECTIONAL_HYPOTHESIS, NON_DIRECTIONAL_HYPOTHESIS
+  priority              String                @default("MEDIUM")
+  status                String                @default("PROPOSED") // DRAFT, PROPOSED, UNDER_TESTING, SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE, ARCHIVED
+  evaluationDecision    String?               // SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE
+  evaluationSummary     String?               @db.Text
+  supportingEvidence    String?               @db.Text
+  contradictoryEvidence String?               @db.Text
+  conclusion            String?               @db.Text
+  evaluatedById         String?
+  evaluationDate        DateTime?
+  ownerId               String?
+  createdById           String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project     ErpProject           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  objective   RdResearchObjective? @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  owner       User?                @relation("OwnedHypotheses", fields: [ownerId], references: [id], onDelete: SetNull)
+  experiments RdExperiment[]
+  evidences   RdResearchEvidence[]
+  outcomes    RdResearchOutcome[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([objectiveId])
+  @@index([status])
+  @@map("rd_hypotheses")
+}
+
+model RdVariable {
+  id                String    @id @default(cuid())
+  tenantId          String
+  projectId         String?
+  name              String
+  description       String?   @db.Text
+  variableType      String    @default("INDEPENDENT") // INDEPENDENT, DEPENDENT, CONTROLLED, CONTEXTUAL
+  dataType          String    @default("DECIMAL")     // INTEGER, DECIMAL, TEXT, BOOLEAN, DATE, DATETIME, ENUM
+  unit              String?
+  measurementMethod String?
+  expectedValue     String?
+  minValue          Float?    @map("minValue")
+  maxValue          Float?    @map("maxValue")
+  allowedValues     Json?
+  isRequired        Boolean   @default(true)
+  notes             String?   @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([variableType])
+  @@map("rd_variables")
+}
+
+model RdExperimentProtocol {
+  id                       String           @id @default(cuid())
+  tenantId                 String
+  projectId                String?
+  protocolCode             String?
+  title                    String
+  description              String?          @db.Text
+  purpose                  String?          @db.Text
+  methodology              String?          @db.Text
+  requiredMaterials        String?          @db.Text
+  equipmentDescription     String?          @db.Text
+  safetyInstructions       String?          @db.Text
+  expectedObservations     String?          @db.Text
+  expectedResults          String?          @db.Text
+  estimatedDurationMinutes Int?
+  version                  Int              @default(1)
+  status                   String           @default("ACTIVE") // DRAFT, ACTIVE, ARCHIVED
+  isTemplate               Boolean          @default(false)
+  ownerId                  String?
+  createdById              String?
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner       User?            @relation("OwnedProtocols", fields: [ownerId], references: [id], onDelete: SetNull)
+  steps       RdProtocolStep[]
+  experiments RdExperiment[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([status])
+  @@index([isTemplate])
+  @@map("rd_experiment_protocols")
+}
+
+model RdProtocolStep {
+  id                  String               @id @default(cuid())
+  tenantId            String
+  protocolId          String
+  stepNumber          Int
+  title               String
+  instructions        String               @db.Text
+  expectedAction      String?              @db.Text
+  expectedObservation String?              @db.Text
+  durationMinutes     Int?
+  isRequired          Boolean              @default(true)
+  notes               String?              @db.Text
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  tenant   Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  protocol RdExperimentProtocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([protocolId])
+  @@index([stepNumber])
+  @@map("rd_protocol_steps")
+}
+
+model RdExperiment {
+  id                     String                @id @default(cuid())
+  tenantId               String
+  projectId              String
+  objectiveId            String?
+  hypothesisId           String?
+  protocolId             String?
+  experimentCode         String?
+  title                  String
+  description            String?               @db.Text
+  purpose                String?               @db.Text
+  experimentType         String                @default("LABORATORY") // LABORATORY, FIELD, SIMULATION, ANALYTICAL, PROTOTYPE_TEST, OTHER
+  priority               String                @default("MEDIUM")
+  status                 String                @default("PLANNED") // PLANNED, READY, IN_PROGRESS, PAUSED, COMPLETED, FAILED, CANCELLED
+  plannedStartDate       DateTime?
+  plannedEndDate         DateTime?
+  actualStartDate        DateTime?
+  actualEndDate          DateTime?
+  ownerId                String?
+  assignedResearcherIds  Json?
+  experimentalConditions Json?
+  expectedOutcomes       String?               @db.Text
+  successCriteria        String?               @db.Text
+  taskId                 String?
+  milestoneId            String?
+  createdById            String?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project    ErpProject            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  objective  RdResearchObjective?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  hypothesis RdHypothesis?         @relation(fields: [hypothesisId], references: [id], onDelete: SetNull)
+  protocol   RdExperimentProtocol? @relation(fields: [protocolId], references: [id], onDelete: SetNull)
+  owner      User?                 @relation("OwnedExperiments", fields: [ownerId], references: [id], onDelete: SetNull)
+  task       Task?                 @relation("TaskExperiments", fields: [taskId], references: [id], onDelete: SetNull)
+  runs       RdExperimentRun[]
+  results    RdExperimentResult[]
+  evidences  RdResearchEvidence[]
+
+  // Master Prompt 10 Relations
+  timeEntries      RdTimeEntry[]
+  facilityBookings RdFacilityBooking[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([objectiveId])
+  @@index([hypothesisId])
+  @@index([protocolId])
+  @@index([status])
+  @@map("rd_experiments")
+}
+
+model RdExperimentRun {
+  id                 String                     @id @default(cuid())
+  tenantId           String
+  experimentId       String
+  runNumber          Int
+  runCode            String?
+  title              String?
+  status             String                     @default("PLANNED") // PLANNED, READY, IN_PROGRESS, PAUSED, COMPLETED, FAILED, CANCELLED
+  protocolVersion    Int                        @default(1)
+  protocolSnapshot   Json?
+  conditionsSnapshot Json?
+  operatorId         String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  notes              String?                    @db.Text
+  createdById        String?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  tenant       Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  experiment   RdExperiment              @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  runSteps     RdExperimentRunStep[]
+  observations RdExperimentObservation[]
+  measurements RdExperimentMeasurement[]
+  results      RdExperimentResult[]
+  evidences    RdResearchEvidence[]
+
+  @@index([tenantId])
+  @@index([experimentId])
+  @@index([status])
+  @@index([runNumber])
+  @@map("rd_experiment_runs")
+}
+
+model RdExperimentRunStep {
+  id            String          @id @default(cuid())
+  tenantId      String
+  runId         String
+  stepNumber    Int
+  title         String
+  isCompleted   Boolean         @default(false)
+  completedAt   DateTime?
+  completedById String?
+  notes         String?         @db.Text
+  createdAt     DateTime        @default(now())
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  run    RdExperimentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([runId])
+  @@index([stepNumber])
+  @@map("rd_experiment_run_steps")
+}
+
+model RdExperimentObservation {
+  id              String          @id @default(cuid())
+  tenantId        String
+  runId           String
+  title           String
+  description     String          @db.Text
+  observationType String          @default("GENERAL") // GENERAL, VISUAL, ANOMALY, PROCEDURE_DEVIATION, BENCH_NOTE
+  observedAt      DateTime        @default(now())
+  recordedById    String?
+  stepNumber      Int?
+  variableId      String?
+  createdAt       DateTime        @default(now())
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  run    RdExperimentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([runId])
+  @@index([observationType])
+  @@map("rd_experiment_observations")
+}
+
+model RdExperimentMeasurement {
+  id                   String          @id @default(cuid())
+  tenantId             String
+  runId                String
+  variableId           String?
+  variableNameSnapshot String
+  variableTypeSnapshot String          @default("DEPENDENT")
+  recordedValue        String
+  numericValue         Float?
+  dataType             String          @default("DECIMAL")
+  unitSnapshot         String?
+  measurementTime      DateTime        @default(now())
+  measurementMethod    String?
+  recordedById         String?
+  stepNumber           Int?
+  isAnomaly            Boolean         @default(false)
+  notes                String?         @db.Text
+  createdAt            DateTime        @default(now())
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  run    RdExperimentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([runId])
+  @@index([variableId])
+  @@map("rd_experiment_measurements")
+}
+
+model RdExperimentResult {
+  id                   String          @id @default(cuid())
+  tenantId             String
+  experimentId         String
+  runId                String?
+  summary              String          @db.Text
+  keyFindings          String?         @db.Text
+  expectedVsActual     String?         @db.Text
+  criteriaEvaluation   String?         @db.Text
+  deviations           String?         @db.Text
+  researcherConclusion String?         @db.Text
+  isSuccessCriteriaMet Boolean         @default(false)
+  evaluatedById        String?
+  evaluatedAt          DateTime        @default(now())
+  createdAt            DateTime        @default(now())
+
+  tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  experiment RdExperiment     @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  run        RdExperimentRun? @relation(fields: [runId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([experimentId])
+  @@index([runId])
+  @@map("rd_experiment_results")
+}
+
+model RdResearchEvidence {
+  id           String               @id @default(cuid())
+  tenantId     String
+  projectId    String
+  objectiveId  String?
+  hypothesisId String?
+  experimentId String?
+  runId        String?
+  title        String
+  description  String?              @db.Text
+  evidenceType String               @default("EXPERIMENTAL_DATA") // EXPERIMENTAL_DATA, OBSERVATION, MEASUREMENT, IMAGE, REPORT, DOCUMENT, RESEARCH_REFERENCE, OTHER
+  source       String?
+  fileUrl      String?
+  fileType     String?
+  fileSize     Int?
+  recordedById String?
+  status       String               @default("VERIFIED")
+  createdAt    DateTime             @default(now())
+
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project    ErpProject            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  objective  RdResearchObjective?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  hypothesis RdHypothesis?         @relation(fields: [hypothesisId], references: [id], onDelete: SetNull)
+  experiment RdExperiment?         @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  run        RdExperimentRun?      @relation(fields: [runId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([objectiveId])
+  @@index([hypothesisId])
+  @@index([experimentId])
+  @@map("rd_research_evidences")
+}
+
+model RdResearchOutcome {
+  id                        String               @id @default(cuid())
+  tenantId                  String
+  projectId                 String
+  objectiveId               String?
+  hypothesisId              String?
+  experimentId              String?
+  title                     String
+  summary                   String               @db.Text
+  outcomeCategory           String               @default("SCIENTIFIC_DISCOVERY") // SCIENTIFIC_DISCOVERY, PROCESS_OPTIMIZATION, FAILED_PROOF, NEW_CAPABILITY, PUBLICATION, PATENT_CANDIDATE
+  supportingEvidenceSummary String?              @db.Text
+  outcomeDate               DateTime             @default(now())
+  recordedById              String?
+  createdAt                 DateTime             @default(now())
+
+  tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project    ErpProject            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  objective  RdResearchObjective?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  hypothesis RdHypothesis?         @relation(fields: [hypothesisId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([objectiveId])
+  @@index([hypothesisId])
+  @@map("rd_research_outcomes")
+}
+
+model RdResearchNote {
+  id            String                  @id @default(cuid())
+  tenantId      String
+  projectId     String
+  entityType    String                  // OBJECTIVE, HYPOTHESIS, EXPERIMENT, RUN, NOTEBOOK, GENERAL
+  entityId      String
+  notebookId    String?
+  entryNumber   String?
+  title         String
+  content       String                  @db.Text
+  category      String                  @default("RESEARCH_OBSERVATION")
+  status        String                  @default("DRAFT") // DRAFT, FINALIZED, ARCHIVED
+  researchDate  DateTime?               @default(now())
+  tags          String?                 @db.Text
+  objectiveId   String?
+  hypothesisId  String?
+  experimentId  String?
+  runId         String?
+  finalizedAt   DateTime?
+  finalizedById String?
+  version       Int                     @default(1)
+  authorId      String?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  tenant        Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project       ErpProject              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  notebook      RdNotebook?             @relation(fields: [notebookId], references: [id], onDelete: SetNull)
+  versions      RdResearchNoteVersion[]
+  documents     RdResearchDocument[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([notebookId])
+  @@index([entityType, entityId])
+  @@map("rd_research_notes")
+}
+
+model RdNotebook {
+  id           String                   @id @default(cuid())
+  tenantId     String
+  projectId    String
+  notebookCode String
+  title        String
+  description  String?                  @db.Text
+  category     String                   @default("LABORATORY") // LABORATORY, THEORETICAL, COMPUTATIONAL, FORMULATION, CLINICAL, GENERAL
+  status       String                   @default("ACTIVE") // ACTIVE, ARCHIVED
+  tags         String?                  @db.Text
+  ownerId      String?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+
+  tenant       Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project      ErpProject               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner        User?                    @relation("OwnedNotebooks", fields: [ownerId], references: [id], onDelete: SetNull)
+  contributors RdNotebookContributor[]
+  entries      RdResearchNote[]
+  documents    RdResearchDocument[]
+  datasets     RdDataset[]
+
+  @@unique([tenantId, notebookCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([ownerId])
+  @@index([status])
+  @@map("rd_notebooks")
+}
+
+model RdNotebookContributor {
+  id         String     @id @default(cuid())
+  tenantId   String
+  notebookId String
+  userId     String
+  role       String     @default("CONTRIBUTOR") // OWNER, CONTRIBUTOR, VIEWER
+  addedAt    DateTime   @default(now())
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  notebook   RdNotebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
+  user       User       @relation("NotebookUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notebookId, userId])
+  @@index([tenantId])
+  @@index([notebookId])
+  @@index([userId])
+  @@map("rd_notebook_contributors")
+}
+
+model RdResearchNoteVersion {
+  id            String         @id @default(cuid())
+  tenantId      String
+  noteId        String
+  versionNumber Int
+  title         String
+  content       String         @db.LongText
+  changeSummary String?
+  savedById     String?
+  createdAt     DateTime       @default(now())
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  note          RdResearchNote @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@unique([noteId, versionNumber])
+  @@index([tenantId])
+  @@index([noteId])
+  @@map("rd_research_note_versions")
+}
+
+model RdResearchDocument {
+  id               String               @id @default(cuid())
+  tenantId         String
+  projectId        String
+  notebookId       String?
+  noteId           String?
+  experimentId     String?
+  runId            String?
+  hypothesisId     String?
+  objectiveId      String?
+  documentCode     String
+  title            String
+  description      String?              @db.Text
+  category         String               @default("RESEARCH_REPORT") // RESEARCH_REPORT, TECHNICAL_DOCUMENT, SCIENTIFIC_PAPER, EXPERIMENTAL_REPORT, LITERATURE_REFERENCE, METHODOLOGY, DATASET_DOCUMENTATION, RESEARCH_EVIDENCE, DIAGRAM, GENERAL_ATTACHMENT
+  tags             String?              @db.Text
+  originalFilename String
+  fileExtension    String
+  mimeType         String
+  fileSize         Int                  @default(0)
+  storagePath      String
+  fileChecksum     String?
+  currentVersion   Int                  @default(1)
+  status           String               @default("ACTIVE") // ACTIVE, ARCHIVED, DRAFT
+  uploadedById     String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  tenant           Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project          ErpProject           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  notebook         RdNotebook?          @relation(fields: [notebookId], references: [id], onDelete: SetNull)
+  note             RdResearchNote?      @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  uploader         User?                @relation("UploadedDocs", fields: [uploadedById], references: [id], onDelete: SetNull)
+  versions         RdDocumentVersion[]
+  links            RdDocumentLink[]
+  deliverables     RdDeliverable[]
+
+  @@unique([tenantId, documentCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([notebookId])
+  @@index([category])
+  @@index([uploadedById])
+  @@index([status])
+  @@map("rd_research_documents")
+}
+
+model RdDocumentVersion {
+  id               String             @id @default(cuid())
+  tenantId         String
+  documentId       String
+  versionNumber    Int
+  versionLabel     String             @default("v1.0")
+  originalFilename String
+  fileExtension    String
+  mimeType         String
+  fileSize         Int                @default(0)
+  storagePath      String
+  fileChecksum     String?
+  revisionSummary  String?
+  isCurrent        Boolean            @default(false)
+  uploadedById     String?
+  createdAt        DateTime           @default(now())
+
+  tenant           Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  document         RdResearchDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, versionNumber])
+  @@index([tenantId])
+  @@index([documentId])
+  @@index([isCurrent])
+  @@map("rd_document_versions")
+}
+
+model RdDocumentLink {
+  id         String             @id @default(cuid())
+  tenantId   String
+  documentId String
+  entityType String
+  entityId   String
+  linkType   String             @default("SUPPORTING_DOCUMENT")
+  linkedById String?
+  createdAt  DateTime           @default(now())
+
+  tenant     Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  document   RdResearchDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, entityType, entityId])
+  @@index([tenantId])
+  @@index([documentId])
+  @@index([entityType, entityId])
+  @@map("rd_document_links")
+}
+
+model RdDataset {
+  id             String          @id @default(cuid())
+  tenantId       String
+  projectId      String
+  datasetCode    String
+  title          String
+  description    String?         @db.Text
+  category       String          @default("EXPERIMENTAL_DATASET") // EXPERIMENTAL_DATASET, INSTRUMENT_DATA, OBSERVATION_DATASET, SIMULATION_DATASET, SURVEY_DATA, RESEARCH_REFERENCE_DATA, EXTERNAL_DATASET, PROCESSED_DATASET
+  dataFormat     String          @default("CSV")
+  dataSource     String?
+  collectionDate DateTime?
+  notebookId     String?
+  noteId         String?
+  experimentId   String?
+  runId          String?
+  tags           String?         @db.Text
+  status         String          @default("ACTIVE") // ACTIVE, ARCHIVED
+  ownerId        String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project        ErpProject      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  notebook       RdNotebook?     @relation(fields: [notebookId], references: [id], onDelete: SetNull)
+  owner          User?           @relation("OwnedDatasets", fields: [ownerId], references: [id], onDelete: SetNull)
+  files          RdDatasetFile[]
+
+  @@unique([tenantId, datasetCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([category])
+  @@index([status])
+  @@map("rd_datasets")
+}
+
+model RdDatasetFile {
+  id                String    @id @default(cuid())
+  tenantId          String
+  datasetId         String
+  fileName          String
+  originalFilename  String
+  fileExtension     String
+  mimeType          String
+  fileSize          Int       @default(0)
+  storagePath       String
+  fileChecksum      String?
+  rowCount          Int?
+  columnCount       Int?
+  schemaDescription String?   @db.Text
+  uploadedById      String?
+  createdAt         DateTime  @default(now())
+
+  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  dataset           RdDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([datasetId])
+  @@map("rd_dataset_files")
+}
+
+model RdKnowledgeRecord {
+  id                 String    @id @default(cuid())
+  tenantId           String
+  knowledgeCode      String
+  title              String
+  description        String?   @db.Text
+  content            String    @db.LongText
+  category           String    @default("RESEARCH_FINDING") // RESEARCH_FINDING, TECHNICAL_KNOWLEDGE, SCIENTIFIC_REFERENCE, METHODOLOGY, BEST_PRACTICE, RESEARCH_SUMMARY, LESSONS_LEARNED, DISCOVERY, REUSABLE_DOCUMENTATION
+  tags               String?   @db.Text
+  sourceProjectId    String?
+  sourceNotebookId   String?
+  sourceExperimentId String?
+  sourceNoteId       String?
+  sourceEvidenceId   String?
+  sourceOutcomeId    String?
+  accessLevel        String    @default("TENANT_WIDE") // TENANT_WIDE, PROJECT_RESTRICTED, CONFIDENTIAL
+  status             String    @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  authorId           String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, knowledgeCode])
+  @@index([tenantId])
+  @@index([category])
+  @@index([sourceProjectId])
+  @@index([status])
+  @@map("rd_knowledge_records")
+}
+
+// =====================================================================
+// EGOLYTICS MASTER PROMPT 09: DECISION, RISK, ISSUE & FINANCIAL MODELS
+// Requirements 31 - 40
+// =====================================================================
+
+model RdDecision {
+  id                     String              @id @default(cuid())
+  tenantId               String
+  projectId              String
+  decisionCode           String
+  title                  String
+  description            String?             @db.Text
+  category               String              @default("ARCHITECTURE") // ARCHITECTURE, TECHNICAL, STRATEGIC, SCOPE, GOVERNANCE, PROCESS, QUALITY, RESOURCE, BUDGET, COMPLIANCE
+  rationale              String              @db.Text
+  alternativesConsidered String?             @db.Text
+  tradeOffs              String?             @db.Text
+  impactSummary          String?             @db.Text
+  status                 String              @default("PROPOSED") // DRAFT, PROPOSED, UNDER_REVIEW, APPROVED, REJECTED, SUPERSEDED
+  decisionMakerId        String?
+  decisionMakerName      String?
+  decisionDate           DateTime?
+  effectiveDate          DateTime?
+  reviewDate             DateTime?
+  linkedGateId           String?
+  linkedStageId          String?
+  linkedTaskId           String?
+  createdById            String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  tenant                 Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project                ErpProject          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  histories              RdDecisionHistory[]
+
+  @@unique([tenantId, decisionCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([category])
+  @@index([status])
+  @@map("rd_decisions")
+}
+
+model RdDecisionHistory {
+  id             String     @id @default(cuid())
+  tenantId       String
+  decisionId     String
+  changeType     String     // STATUS_CHANGE, CONTENT_UPDATE, REVIEW_NOTE, SUPERSEDED, APPROVAL, REJECTION
+  previousStatus String?
+  newStatus      String?
+  comment        String?    @db.Text
+  changedById    String?
+  changedByName  String?
+  createdAt      DateTime   @default(now())
+
+  tenant         Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  decision       RdDecision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([decisionId])
+  @@map("rd_decision_histories")
+}
+
+model RdRisk {
+  id                  String                 @id @default(cuid())
+  tenantId            String
+  projectId           String
+  riskCode            String
+  title               String
+  description         String?                @db.Text
+  category            String                 @default("TECHNICAL") // TECHNICAL, SCHEDULE, BUDGET, RESOURCE, REGULATORY, SCIENTIFIC, OPERATIONAL, EXTERNAL, MARKET
+  probability         Int                    @default(3) // 1 - 5
+  impact              Int                    @default(3) // 1 - 5
+  riskScore           Int                    @default(9) // probability * impact (1 - 25)
+  riskLevel           String                 @default("MODERATE") // LOW (1-4), MODERATE (5-9), HIGH (10-16), CRITICAL (17-25)
+  status              String                 @default("IDENTIFIED") // IDENTIFIED, ASSESSED, MITIGATION_PLANNED, MITIGATION_ACTIVE, MONITORING, RETIRED, MATERIALIZED
+  strategy            String                 @default("MITIGATE") // MITIGATE, AVOID, TRANSFER, ACCEPT
+  ownerId             String?
+  ownerName           String?
+  contingencyPlan     String?                @db.Text
+  triggerCondition    String?                @db.Text
+  residualProbability Int?
+  residualImpact      Int?
+  residualScore       Int?
+  reviewFrequency     String                 @default("MONTHLY") // WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, STAGE_GATE
+  lastReviewedAt      DateTime?
+  nextReviewDate      DateTime?
+  linkedTaskId        String?
+  linkedMilestoneId   String?
+  linkedGateId        String?
+  createdById         String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  tenant              Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project             ErpProject             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  mitigations         RdRiskMitigation[]
+  reviewHistories     RdRiskReviewHistory[]
+
+  @@unique([tenantId, riskCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([category])
+  @@index([riskLevel])
+  @@index([status])
+  @@map("rd_risks")
+}
+
+model RdRiskMitigation {
+  id                String    @id @default(cuid())
+  tenantId          String
+  riskId            String
+  actionTitle       String
+  actionDescription String?   @db.Text
+  ownerId           String?
+  ownerName         String?
+  dueDate           DateTime?
+  status            String    @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED, CANCELLED
+  progressPercent   Int       @default(0)
+  effectiveness     String?   // HIGH, MEDIUM, LOW, INEFFECTIVE
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk              RdRisk    @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([riskId])
+  @@map("rd_risk_mitigations")
+}
+
+model RdRiskReviewHistory {
+  id            String   @id @default(cuid())
+  tenantId      String
+  riskId        String
+  reviewerId    String?
+  reviewerName  String?
+  previousScore Int
+  newScore      Int
+  previousLevel String
+  newLevel      String
+  reviewNotes   String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk          RdRisk   @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([riskId])
+  @@map("rd_risk_review_histories")
+}
+
+model RdIssue {
+  id                 String           @id @default(cuid())
+  tenantId           String
+  projectId          String
+  issueCode          String
+  title              String
+  description        String?          @db.Text
+  category           String           @default("TECHNICAL") // TECHNICAL, OPERATIONAL, RESOURCE, SCOPE, SCHEDULE, QUALITY, THIRD_PARTY, SCIENTIFIC
+  priority           String           @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL, BLOCKER
+  severity           String           @default("MEDIUM") // MINOR, MODERATE, MAJOR, CRITICAL
+  status             String           @default("OPEN") // OPEN, UNDER_INVESTIGATION, IN_PROGRESS, RESOLVED, CLOSED, WONT_FIX
+  rootCause          String?          @db.Text
+  resolution         String?          @db.Text
+  ownerId            String?
+  ownerName          String?
+  assigneeId         String?
+  assigneeName       String?
+  sourceRiskId       String?
+  linkedTaskId       String?
+  linkedExperimentId String?
+  resolvedAt         DateTime?
+  closedAt           DateTime?
+  createdById        String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project            ErpProject       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments           RdIssueComment[]
+
+  @@unique([tenantId, issueCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([priority])
+  @@index([status])
+  @@map("rd_issues")
+}
+
+model RdIssueComment {
+  id             String   @id @default(cuid())
+  tenantId       String
+  issueId        String
+  authorId       String?
+  authorName     String?
+  commentText    String   @db.Text
+  isInternalOnly Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  issue          RdIssue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([issueId])
+  @@map("rd_issue_comments")
+}
+
+model RdChangeRequest {
+  id                  String     @id @default(cuid())
+  tenantId            String
+  projectId           String
+  changeCode          String
+  title               String
+  description         String?    @db.Text
+  reasonForChange     String     @db.Text
+  changeType          String     @default("SCOPE") // SCOPE, SCHEDULE, BUDGET, SPECIFICATION, RESOURCE, TECHNICAL
+  scopeImpact         String?    @db.Text
+  scheduleImpactDays  Int        @default(0)
+  costImpactAmount    Decimal    @default(0.00) @db.Decimal(12, 2)
+  riskImpact          String?    @db.Text
+  priority            String     @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status              String     @default("SUBMITTED") // DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, IMPLEMENTED, CANCELLED
+  requesterId         String?
+  requesterName       String?
+  reviewerId          String?
+  reviewerName        String?
+  reviewerComments    String?    @db.Text
+  reviewedAt          DateTime?
+  implementationNotes String?    @db.Text
+  implementedAt       DateTime?
+  linkedTaskId        String?
+  linkedGateId        String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  tenant              Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project             ErpProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, changeCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([changeType])
+  @@index([status])
+  @@map("rd_change_requests")
+}
+
+model RdRequirement {
+  id                  String                   @id @default(cuid())
+  tenantId            String
+  projectId           String
+  reqCode             String
+  title               String
+  description         String?                  @db.Text
+  category            String                   @default("FUNCTIONAL") // FUNCTIONAL, NON_FUNCTIONAL, PERFORMANCE, COMPLIANCE, SAFETY, USABILITY, SCIENTIFIC, REGULATORY
+  priority            String                   @default("HIGH") // MUST_HAVE, SHOULD_HAVE, COULD_HAVE, WONT_HAVE_THIS_TIME
+  verificationMethod  String                   @default("TEST") // TEST, DEMONSTRATION, INSPECTION, ANALYSIS, SIMULATION
+  verificationStatus  String                   @default("UNVERIFIED") // UNVERIFIED, VERIFICATION_IN_PROGRESS, PASSED, FAILED, WAIVED
+  complianceStatus    String                   @default("NON_COMPLIANT") // COMPLIANT, PARTIAL, NON_COMPLIANT, UNDER_EVALUATION
+  source              String?
+  version             String                   @default("1.0")
+  ownerId             String?
+  ownerName           String?
+  linkedExperimentId  String?
+  linkedTaskId        String?
+  linkedDeliverableId String?
+  createdById         String?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  tenant              Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project             ErpProject               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  criteria            RdRequirementCriterion[]
+
+  @@unique([tenantId, reqCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([category])
+  @@index([priority])
+  @@index([verificationStatus])
+  @@map("rd_requirements")
+}
+
+model RdRequirementCriterion {
+  id                   String        @id @default(cuid())
+  tenantId             String
+  requirementId        String
+  criterionDescription String        @db.Text
+  expectedValue        String?
+  actualValue          String?
+  isMet                Boolean       @default(false)
+  verifiedAt           DateTime?
+  verifiedById         String?
+  verifiedByName       String?
+  createdAt            DateTime      @default(now())
+
+  tenant               Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  requirement          RdRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([requirementId])
+  @@map("rd_requirement_criteria")
+}
+
+model RdScopeBaseline {
+  id                String     @id @default(cuid())
+  tenantId          String
+  projectId         String
+  baselineVersion   String     @default("1.0")
+  title             String
+  description       String?    @db.Text
+  inScopeSummary    String?    @db.Text
+  outOfScopeSummary String?    @db.Text
+  assumptions       String?    @db.Text
+  constraints       String?    @db.Text
+  status            String     @default("APPROVED") // DRAFT, UNDER_REVIEW, APPROVED, SUPERSEDED
+  approvedById      String?
+  approvedByName    String?
+  approvedAt        DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  tenant            Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project           ErpProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, projectId, baselineVersion])
+  @@index([tenantId])
+  @@index([projectId])
+  @@map("rd_scope_baselines")
+}
+
+model RdScopeItem {
+  id                String        @id @default(cuid())
+  tenantId          String
+  projectId         String
+  parentItemId      String?
+  wbsCode           String
+  title             String
+  description       String?       @db.Text
+  level             Int           @default(1)
+  itemType          String        @default("WORK_PACKAGE") // PROJECT, PHASE, SUB_PHASE, WORK_PACKAGE, DELIVERABLE, TASK
+  status            String        @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, COMPLETED, ON_HOLD, CANCELLED
+  completionPercent Int           @default(0)
+  ownerId           String?
+  ownerName         String?
+  estimatedHours    Decimal?      @db.Decimal(10, 2)
+  actualHours       Decimal?      @db.Decimal(10, 2)
+  sortOrder         Int           @default(0)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project           ErpProject    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parentItem        RdScopeItem?  @relation("ScopeHierarchy", fields: [parentItemId], references: [id], onDelete: SetNull)
+  childItems        RdScopeItem[] @relation("ScopeHierarchy")
+
+  @@unique([tenantId, projectId, wbsCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([parentItemId])
+  @@map("rd_scope_items")
+}
+
+model RdDeliverable {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  projectId          String
+  deliverableCode    String
+  title              String
+  description        String?             @db.Text
+  category           String              @default("TECHNICAL_REPORT") // TECHNICAL_REPORT, PROTOTYPE, SPECIFICATION_SHEET, TEST_DATASET, REGULATORY_FILING, SOFTWARE_RELEASE, DESIGN_BLUEPRINT, LAB_SYNTHESIS
+  ownerId            String?
+  ownerName          String?
+  dueDate            DateTime?
+  submissionDate     DateTime?
+  status             String              @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, SUBMITTED, UNDER_REVIEW, ACCEPTED, REJECTED, WAIVED
+  acceptanceCriteria String?             @db.Text
+  acceptanceNotes    String?             @db.Text
+  acceptedById       String?
+  acceptedByName     String?
+  acceptedAt         DateTime?
+  documentId         String?
+  linkedTaskId       String?
+  linkedMilestoneId  String?
+  linkedScopeItemId  String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project            ErpProject          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  document           RdResearchDocument? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, deliverableCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([category])
+  @@index([status])
+  @@map("rd_deliverables")
+}
+
+model RdQualityCheckpoint {
+  id                  String               @id @default(cuid())
+  tenantId            String
+  projectId           String
+  checkpointCode      String
+  title               String
+  description         String?              @db.Text
+  checkpointType      String               @default("STAGE_GATE") // STAGE_GATE, MILESTONE, PEER_REVIEW, AUDIT, COMPLIANCE_CHECK, SPRINT_REVIEW
+  plannedDate         DateTime?
+  conductedDate       DateTime?
+  status              String               @default("PLANNED") // PLANNED, IN_PROGRESS, PASSED, CONDITIONAL_PASS, FAILED, WAIVED
+  overallResult       String?              // PASS, FAIL, CONDITIONAL, PENDING
+  leadInspectorId     String?
+  leadInspectorName   String?
+  summaryFindings     String?              @db.Text
+  correctiveActions   String?              @db.Text
+  linkedGateId        String?
+  linkedMilestoneId   String?
+  linkedDeliverableId String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project             ErpProject           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  criteria            RdQualityCriterion[]
+
+  @@unique([tenantId, checkpointCode])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([checkpointType])
+  @@index([status])
+  @@map("rd_quality_checkpoints")
+}
+
+model RdQualityCriterion {
+  id                    String              @id @default(cuid())
+  tenantId              String
+  checkpointId          String
+  criterionName         String
+  specificationStandard String?             @db.Text
+  result                String              @default("PENDING") // PENDING, PASS, FAIL, NA
+  observations          String?             @db.Text
+  verifiedById          String?
+  verifiedByName        String?
+  verifiedAt            DateTime?
+  createdAt             DateTime            @default(now())
+
+  tenant                Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  checkpoint            RdQualityCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([checkpointId])
+  @@map("rd_quality_criteria")
+}
+
+model RdProjectBudget {
+  id                    String                @id @default(cuid())
+  tenantId              String
+  projectId             String
+  fiscalYear            Int
+  currency              String                @default("USD")
+  totalAllocated        Decimal               @default(0.00) @db.Decimal(14, 2)
+  totalSpent            Decimal               @default(0.00) @db.Decimal(14, 2)
+  totalCommitted        Decimal               @default(0.00) @db.Decimal(14, 2)
+  status                String                @default("DRAFT") // DRAFT, SUBMITTED, APPROVED, REVISED, CLOSED
+  approvalNotes         String?               @db.Text
+  approvedById          String?
+  approvedByName        String?
+  approvedAt            DateTime?
+  contingencyPercentage Decimal               @default(10.00) @db.Decimal(5, 2)
+  contingencyAmount     Decimal               @default(0.00) @db.Decimal(14, 2)
+  createdById           String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  tenant                Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project               ErpProject            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  allocations           RdBudgetAllocation[]
+  revisions             RdBudgetRevision[]
+
+  @@unique([tenantId, projectId, fiscalYear])
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([status])
+  @@map("rd_project_budgets")
+}
+
+model RdBudgetAllocation {
+  id              String          @id @default(cuid())
+  tenantId        String
+  budgetId        String
+  category        String          // PERSONNEL, LAB_EQUIPMENT, MATERIALS_CONSUMABLES, THIRD_PARTY_SERVICES, SOFTWARE_LICENSES, TRAVEL_FIELDWORK, OVERHEAD_FACILITIES, CONTINGENCY
+  subcategory     String?
+  plannedAmount   Decimal         @default(0.00) @db.Decimal(14, 2)
+  actualAmount    Decimal         @default(0.00) @db.Decimal(14, 2)
+  committedAmount Decimal         @default(0.00) @db.Decimal(14, 2)
+  notes           String?         @db.Text
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  budget          RdProjectBudget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([budgetId])
+  @@index([category])
+  @@map("rd_budget_allocations")
+}
+
+model RdBudgetRevision {
+  id              String          @id @default(cuid())
+  tenantId        String
+  budgetId        String
+  revisionNumber  Int             @default(1)
+  previousTotal   Decimal         @db.Decimal(14, 2)
+  newTotal        Decimal         @db.Decimal(14, 2)
+  changeAmount    Decimal         @db.Decimal(14, 2)
+  reason          String          @db.Text
+  requestedById   String?
+  requestedByName String?
+  status          String          @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedById    String?
+  reviewedByName  String?
+  reviewedAt      DateTime?
+  reviewNotes     String?         @db.Text
+  createdAt       DateTime        @default(now())
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  budget          RdProjectBudget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([budgetId])
+  @@map("rd_budget_revisions")
+}
+
+// ==============================================================================
+// MASTER PROMPT 10: RESOURCE, CAPACITY, TIME & LAB FACILITY MANAGEMENT
+// ==============================================================================
+
+model RdResourceProfile {
+  id                  String   @id @default(cuid())
+  tenantId            String
+  userId              String   @unique
+  employeeCode        String
+  department          String   @default("R&D Operations")
+  designation         String   @default("Research Engineer")
+  standardWeeklyHours Decimal  @default(40.00) @db.Decimal(5, 2)
+  hourlyCostRate      Decimal  @default(75.00) @db.Decimal(10, 2)
+  employmentStatus    String   @default("ACTIVE")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId], map: "uq_rd_resprof_user")
+  @@index([tenantId], map: "idx_rd_resprof_tenant")
+  @@index([userId], map: "idx_rd_resprof_user")
+  @@index([department], map: "idx_rd_resprof_dept")
+  @@map("rd_resource_profiles")
+}
+
+model RdResourceAllocation {
+  id                   String   @id @default(cuid())
+  tenantId             String
+  projectId            String
+  userId               String
+  roleInProject        String   @default("Researcher")
+  allocationPercentage Int      @default(50)
+  startDate            DateTime
+  endDate              DateTime
+  expectedWeeklyHours  Decimal  @default(20.00) @db.Decimal(6, 2)
+  status               String   @default("ACTIVE")
+  notes                String?  @db.Text
+  assignedById         String?
+  assignedByName       String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  tenant  Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project ErpProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], map: "idx_rd_resalloc_tenant")
+  @@index([projectId], map: "idx_rd_resalloc_proj")
+  @@index([userId], map: "idx_rd_resalloc_user")
+  @@index([status], map: "idx_rd_resalloc_status")
+  @@map("rd_resource_allocations")
+}
+
+model RdSkill {
+  id          String   @id @default(cuid())
+  tenantId    String
+  skillCode   String
+  name        String
+  category    String   @default("SCIENTIFIC_RESEARCH")
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  employeeSkills RdEmployeeSkill[]
+
+  @@unique([tenantId, skillCode], map: "uq_rd_skl_code")
+  @@index([tenantId], map: "idx_rd_skl_tenant")
+  @@index([category], map: "idx_rd_skl_cat")
+  @@index([isActive], map: "idx_rd_skl_active")
+  @@map("rd_skills")
+}
+
+model RdEmployeeSkill {
+  id                String    @id @default(cuid())
+  tenantId          String
+  userId            String
+  skillId           String
+  expertiseLevel    String    @default("INTERMEDIATE")
+  yearsOfExperience Decimal?  @default(1.0) @db.Decimal(4, 1)
+  certifications    String?   @db.Text
+  isVerified        Boolean   @default(false)
+  verifiedById      String?
+  verifiedByName    String?
+  verifiedAt        DateTime?
+  notes             String?   @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill  RdSkill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId, skillId], map: "uq_rd_empskl")
+  @@index([tenantId], map: "idx_rd_empskl_tenant")
+  @@index([userId], map: "idx_rd_empskl_user")
+  @@index([skillId], map: "idx_rd_empskl_skill")
+  @@index([expertiseLevel], map: "idx_rd_empskl_level")
+  @@map("rd_employee_skills")
+}
+
+model RdTimesheet {
+  id             String    @id @default(cuid())
+  tenantId       String
+  userId         String
+  timesheetCode  String
+  weekStartDate  DateTime
+  weekEndDate    DateTime
+  totalHours     Decimal   @default(0.00) @db.Decimal(6, 2)
+  status         String    @default("DRAFT")
+  submittedAt    DateTime?
+  reviewedById   String?
+  reviewedByName String?
+  reviewedAt     DateTime?
+  approvalNotes  String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timeEntries RdTimeEntry[]
+  histories   RdTimesheetHistory[]
+
+  @@unique([tenantId, timesheetCode], map: "uq_rd_tms_code")
+  @@index([tenantId], map: "idx_rd_tms_tenant")
+  @@index([userId], map: "idx_rd_tms_user")
+  @@index([status], map: "idx_rd_tms_status")
+  @@index([weekStartDate, weekEndDate], map: "idx_rd_tms_dates")
+  @@map("rd_timesheets")
+}
+
+model RdTimeEntry {
+  id             String   @id @default(cuid())
+  tenantId       String
+  timesheetId    String
+  userId         String
+  projectId      String
+  taskId         String?
+  experimentId   String?
+  workDate       DateTime
+  hours          Decimal  @default(0.00) @db.Decimal(5, 2)
+  description    String   @db.Text
+  workCategory   String   @default("RESEARCH")
+  isBillable     Boolean  @default(true)
+  hourlyCostRate Decimal  @default(75.00) @db.Decimal(10, 2)
+  calculatedCost Decimal  @default(0.00) @db.Decimal(12, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  timesheet  RdTimesheet   @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project    ErpProject    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task       Task?         @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  experiment RdExperiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId], map: "idx_rd_tmentry_tenant")
+  @@index([timesheetId], map: "idx_rd_tmentry_sheet")
+  @@index([userId], map: "idx_rd_tmentry_user")
+  @@index([projectId], map: "idx_rd_tmentry_proj")
+  @@index([taskId], map: "idx_rd_tmentry_task")
+  @@index([workDate], map: "idx_rd_tmentry_date")
+  @@map("rd_time_entries")
+}
+
+model RdTimesheetHistory {
+  id              String   @id @default(cuid())
+  tenantId        String
+  timesheetId     String
+  action          String
+  previousStatus  String?
+  newStatus       String?
+  comments        String?  @db.Text
+  performedById   String?
+  performedByName String?
+  createdAt       DateTime @default(now())
+
+  tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  timesheet RdTimesheet @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], map: "idx_rd_tmshist_tenant")
+  @@index([timesheetId], map: "idx_rd_tmshist_sheet")
+  @@map("rd_timesheet_histories")
+}
+
+model RdFacility {
+  id                  String   @id @default(cuid())
+  tenantId            String
+  facilityCode        String
+  name                String
+  facilityType        String   @default("CHEMISTRY_LAB")
+  description         String?  @db.Text
+  location            String   @default("Main Campus")
+  building            String   @default("Building A")
+  floor               String   @default("1st Floor")
+  capacity            Int      @default(10)
+  operatingHoursStart String   @default("08:00")
+  operatingHoursEnd   String   @default("20:00")
+  facilityManagerId   String?
+  facilityManagerName String?
+  availabilityStatus  String   @default("AVAILABLE")
+  accessRestrictions  String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  tenant    Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  equipment RdLabEquipment[]
+  bookings  RdFacilityBooking[]
+
+  @@unique([tenantId, facilityCode], map: "uq_rd_fac_code")
+  @@index([tenantId], map: "idx_rd_fac_tenant")
+  @@index([facilityType], map: "idx_rd_fac_type")
+  @@index([availabilityStatus], map: "idx_rd_fac_status")
+  @@map("rd_facilities")
+}
+
+model RdLabEquipment {
+  id                 String    @id @default(cuid())
+  tenantId           String
+  facilityId         String
+  equipmentCode      String
+  name               String
+  category           String    @default("SPECTROSCOPY")
+  description        String?   @db.Text
+  manufacturer       String?
+  modelNumber        String?
+  serialNumber       String?
+  operationalStatus  String    @default("AVAILABLE")
+  calibrationDueDate DateTime?
+  maintenanceDueDate DateTime?
+  hourlyUsageRate    Decimal   @default(0.00) @db.Decimal(10, 2)
+  usageRestrictions  String?   @db.Text
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  tenant       Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  facility     RdFacility               @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  maintenances RdEquipmentMaintenance[]
+  bookings     RdFacilityBooking[]
+
+  @@unique([tenantId, equipmentCode], map: "uq_rd_eqp_code")
+  @@index([tenantId], map: "idx_rd_eqp_tenant")
+  @@index([facilityId], map: "idx_rd_eqp_fac")
+  @@index([operationalStatus], map: "idx_rd_eqp_status")
+  @@index([category], map: "idx_rd_eqp_cat")
+  @@map("rd_lab_equipment")
+}
+
+model RdEquipmentMaintenance {
+  id                           String    @id @default(cuid())
+  tenantId                     String
+  equipmentId                  String
+  maintenanceType              String    @default("PREVENTATIVE")
+  title                        String
+  description                  String?   @db.Text
+  startDate                    DateTime
+  endDate                      DateTime
+  status                       String    @default("SCHEDULED")
+  performedById                String?
+  performedByName              String?
+  calibrationCertificateNumber String?
+  notes                        String?   @db.Text
+  completedAt                  DateTime?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  equipment RdLabEquipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], map: "idx_rd_eqpmaint_tenant")
+  @@index([equipmentId], map: "idx_rd_eqpmaint_eqp")
+  @@index([startDate, endDate], map: "idx_rd_eqpmaint_dates")
+  @@index([status], map: "idx_rd_eqpmaint_status")
+  @@map("rd_equipment_maintenances")
+}
+
+model RdFacilityBooking {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  bookingCode        String
+  resourceType       String   @default("FACILITY")
+  facilityId         String?
+  equipmentId        String?
+  projectId          String
+  experimentId       String?
+  taskId             String?
+  requestedById      String
+  requestedByName    String?
+  bookingDate        DateTime
+  startTime          String
+  endTime            String
+  startDateTime      DateTime
+  endDateTime        DateTime
+  purpose            String   @db.Text
+  status             String   @default("CONFIRMED")
+  approvedById       String?
+  approvedByName     String?
+  rejectionReason    String?  @db.Text
+  cancellationReason String?  @db.Text
+  notes              String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  facility    RdFacility?          @relation(fields: [facilityId], references: [id], onDelete: SetNull)
+  equipment   RdLabEquipment?      @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
+  project     ErpProject           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  experiment  RdExperiment?        @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  task        Task?                @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  requestedBy User                 @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+  histories   RdBookingHistory[]
+
+  @@unique([tenantId, bookingCode], map: "uq_rd_bk_code")
+  @@index([tenantId], map: "idx_rd_bk_tenant")
+  @@index([facilityId], map: "idx_rd_bk_fac")
+  @@index([equipmentId], map: "idx_rd_bk_eqp")
+  @@index([projectId], map: "idx_rd_bk_proj")
+  @@index([requestedById], map: "idx_rd_bk_user")
+  @@index([startDateTime, endDateTime], map: "idx_rd_bk_dates")
+  @@index([status], map: "idx_rd_bk_status")
+  @@map("rd_facility_bookings")
+}
+
+model RdBookingHistory {
+  id              String   @id @default(cuid())
+  tenantId        String
+  bookingId       String
+  action          String
+  previousStatus  String?
+  newStatus       String?
+  notes           String?  @db.Text
+  performedById   String?
+  performedByName String?
+  createdAt       DateTime @default(now())
+
+  tenant  Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  booking RdFacilityBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], map: "idx_rd_bkhist_tenant")
+  @@index([bookingId], map: "idx_rd_bkhist_bk")
+  @@map("rd_booking_histories")
+}
+
+
+
+
+
+
+
+
+// ==============================================================================
+// EGOLYTICS MASTER PROMPT 11: COLLABORATION, COMMUNICATION & EXTERNAL INTEGRATIONS
+// ==============================================================================
+
+/// Project Discussions & Direct/Group Messaging Channels
+model RdConversation {
+  id          String   @id @default(cuid())
+  tenantId    String
+  projectId   String?
+  type        String   @default("PROJECT_CHANNEL") // PROJECT_CHANNEL, DIRECT_MESSAGE, GROUP_CHAT
+  title       String
+  topic       String?  @db.Text
+  isPrivate   Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant       Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project      ErpProject?                 @relation("ProjectConversations", fields: [projectId], references: [id], onDelete: Cascade)
+  participants RdConversationParticipant[]
+  messages     RdMessage[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([type])
+  @@map("rd_conversations")
+}
+
+/// Participants in a Conversation with Role & Read Pointer
+model RdConversationParticipant {
+  id             String    @id @default(cuid())
+  tenantId       String
+  conversationId String
+  userId         String
+  role           String    @default("MEMBER") // OWNER, ADMIN, MEMBER
+  isMuted        Boolean   @default(false)
+  lastReadAt     DateTime?
+  joinedAt       DateTime  @default(now())
+
+  conversation RdConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User           @relation("UserConversationParticipations", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([tenantId])
+  @@index([userId])
+  @@map("rd_conversation_participants")
+}
+
+/// Real-time Messages & Discussion Threads with Record Linking
+model RdMessage {
+  id               String    @id @default(cuid())
+  tenantId         String
+  conversationId   String
+  senderId         String
+  content          String    @db.Text
+  messageType      String    @default("TEXT") // TEXT, FILE, SYSTEM
+  parentMessageId  String?
+  isPinned         Boolean   @default(false)
+  isEdited         Boolean   @default(false)
+  editedAt         DateTime?
+  isDeleted        Boolean   @default(false)
+  linkedRecordType String?  // PROJECT, TASK, EXPERIMENT, DECISION, RISK, DOCUMENT
+  linkedRecordId   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  conversation RdConversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                  @relation("UserSentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  parent       RdMessage?            @relation("MessageThread", fields: [parentMessageId], references: [id], onDelete: SetNull)
+  replies      RdMessage[]           @relation("MessageThread")
+  attachments  RdMessageAttachment[]
+
+  @@index([tenantId])
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([parentMessageId])
+  @@index([linkedRecordType, linkedRecordId])
+  @@map("rd_messages")
+}
+
+/// File and Document Attachments for Messages
+model RdMessageAttachment {
+  id         String   @id @default(cuid())
+  tenantId   String
+  messageId  String
+  fileName   String
+  fileUrl    String   @db.Text
+  fileType   String   @default("application/octet-stream")
+  fileSize   Int      @default(0)
+  uploadedAt DateTime @default(now())
+
+  message RdMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([messageId])
+  @@map("rd_message_attachments")
+}
+
+/// Contextual Comments attached to any R&D entity (Project, Task, Milestone, Decision, Risk, Document, etc.)
+model RdContextComment {
+  id              String    @id @default(cuid())
+  tenantId        String
+  recordType      String    // PROJECT, TASK, MILESTONE, EXPERIMENT, RESEARCH_RECORD, DECISION, RISK, DOCUMENT
+  recordId        String
+  authorId        String
+  content         String    @db.Text
+  parentCommentId String?
+  isEdited        Boolean   @default(false)
+  isDeleted       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tenant  Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  author  User               @relation("UserContextComments", fields: [authorId], references: [id], onDelete: Cascade)
+  parent  RdContextComment?  @relation("CommentThread", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies RdContextComment[] @relation("CommentThread")
+
+  @@index([tenantId])
+  @@index([recordType, recordId])
+  @@index([authorId])
+  @@map("rd_context_comments")
+}
+
+/// User @mentions in Messages and Comments
+model RdMention {
+  id              String   @id @default(cuid())
+  tenantId        String
+  sourceType      String   // MESSAGE, COMMENT
+  sourceId        String
+  mentionedUserId String
+  createdById     String
+  isRead          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([mentionedUserId])
+  @@index([sourceType, sourceId])
+  @@map("rd_mentions")
+}
+
+/// In-App Notifications with deep navigation linking
+model RdNotification {
+  id         String    @id @default(cuid())
+  tenantId   String
+  userId     String
+  type       String    // MENTION, REPLY, CALENDAR_INVITE, TASK_ASSIGNED, INTEGRATION_ALERT, SYSTEM
+  title      String
+  message    String    @db.Text
+  linkUrl    String?
+  recordType String?
+  recordId   String?
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("rd_notifications")
+}
+
+/// User Notification Preferences
+model RdNotificationPreference {
+  id                    String  @id @default(cuid())
+  tenantId              String
+  userId                String  @unique
+  emailNotifications    Boolean @default(true)
+  inAppNotifications    Boolean @default(true)
+  mentionNotifications  Boolean @default(true)
+  calendarNotifications Boolean @default(true)
+  slackSync             Boolean @default(false)
+  teamsSync             Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("rd_notification_preferences")
+}
+
+/// Collaborative Shared Calendars & Project Events
+model RdCalendarEvent {
+  id             String    @id @default(cuid())
+  tenantId       String
+  projectId      String?
+  createdById    String
+  title          String
+  description    String?   @db.Text
+  eventType      String    @default("PROJECT_MEETING") // PROJECT_MEETING, RESEARCH_REVIEW, STAGE_GATE_MEETING, TASK_DEADLINE, PROJECT_MILESTONE, EXPERIMENT_SCHEDULE, RESOURCE_RESERVATION
+  location       String?
+  meetingUrl     String?
+  startTime      DateTime
+  endTime        DateTime
+  allDay         Boolean   @default(false)
+  isRecurring    Boolean   @default(false)
+  recurrenceRule String?
+  status         String    @default("CONFIRMED") // CONFIRMED, CANCELLED, TENTATIVE
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant       Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project      ErpProject?             @relation("ProjectCalendarEvents", fields: [projectId], references: [id], onDelete: SetNull)
+  creator      User                    @relation("UserCreatedEvents", fields: [createdById], references: [id], onDelete: Cascade)
+  participants RdCalendarParticipant[]
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([startTime, endTime])
+  @@index([eventType])
+  @@map("rd_calendar_events")
+}
+
+/// Calendar Event Participants & Attendance Status
+model RdCalendarParticipant {
+  id       String  @id @default(cuid())
+  tenantId String
+  eventId  String
+  userId   String?
+  email    String?
+  status   String  @default("PENDING") // ACCEPTED, DECLINED, TENTATIVE, PENDING
+  isHost   Boolean @default(false)
+
+  event RdCalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User?           @relation("UserCalendarParticipations", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("rd_calendar_participants")
+}
+
+/// External Integration Configurations (Slack, Microsoft Teams, Webhooks)
+model RdIntegrationConfig {
+  id             String    @id @default(cuid())
+  tenantId       String
+  provider       String    // SLACK, TEAMS, GENERIC_WEBHOOK
+  name           String
+  status         String    @default("INACTIVE") // ACTIVE, INACTIVE, ERROR, DISCONNECTED
+  webhookUrl     String?   @db.Text
+  channelMapping Json?
+  eventsConfig   Json?
+  lastSyncAt     DateTime?
+  errorMessage   String?   @db.Text
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  logs   RdIntegrationLog[]
+
+  @@index([tenantId])
+  @@index([provider, status])
+  @@map("rd_integration_configs")
+}
+
+/// External Integration Activity & Audit Logs
+model RdIntegrationLog {
+  id             String   @id @default(cuid())
+  tenantId       String
+  configId       String
+  provider       String
+  event          String   // NOTIFICATION_SENT, CHANNEL_MESSAGE, SYNC_EVENT, CONNECTION_TEST
+  status         String   @default("SUCCESS") // SUCCESS, FAILED
+  payloadSummary String?  @db.Text
+  errorDetails   String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  config RdIntegrationConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([configId])
+  @@index([createdAt])
+  @@map("rd_integration_logs")
+}
+
+// ==============================================================================
+// EGOLYTICS MASTER PROMPT 12: R&D DASHBOARD, REPORTING & ANALYTICS ENGINE
+// ==============================================================================
+
+/// Configurable KPI Framework
+model RdKpi {
+  id                 String          @id @default(cuid())
+  tenantId           String
+  code               String
+  name               String
+  description        String?         @db.Text
+  calculationFormula String?         @db.Text
+  category           String          @default("PORTFOLIO") // PORTFOLIO, DELIVERY, INNOVATION, FINANCIAL, RESOURCE, QUALITY
+  targetValue        Float           @default(0.0)
+  currentValue       Float           @default(0.0)
+  unit               String          @default("PERCENT") // PERCENT, CURRENCY, COUNT, DAYS, HOURS, RATIO
+  measurementPeriod  String          @default("MONTHLY") // MONTHLY, QUARTERLY, ANNUAL, WEEKLY
+  status             String          @default("ON_TRACK") // ON_TRACK, AT_RISK, CRITICAL, EXCEEDED
+  trend              String          @default("STABLE") // UP, DOWN, STABLE
+  ownerId            String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  tenant  Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner   User?          @relation("UserOwnedKpis", fields: [ownerId], references: [id], onDelete: SetNull)
+  history RdKpiHistory[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([category])
+  @@index([status])
+  @@map("rd_kpis")
+}
+
+/// Historical Track of KPI Values over Measurement Periods
+model RdKpiHistory {
+  id          String   @id @default(cuid())
+  tenantId    String
+  kpiId       String
+  period      String
+  targetValue Float
+  actualValue Float
+  variance    Float    @default(0.0)
+  notes       String?  @db.Text
+  recordedAt  DateTime @default(now())
+
+  kpi RdKpi @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([kpiId])
+  @@index([recordedAt])
+  @@map("rd_kpi_history")
+}
+
+/// User Custom Dashboard Layout and Widget Preferences
+model RdDashboardPreference {
+  id            String   @id @default(cuid())
+  tenantId      String
+  userId        String
+  dashboardType String   @default("EXECUTIVE") // EXECUTIVE, PORTFOLIO, EXECUTION, FINANCIAL, RESOURCES
+  layoutConfig  Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId, dashboardType])
+  @@index([tenantId])
+  @@index([userId])
+  @@map("rd_dashboard_preferences")
+}
+
+// ==============================================================================
+// MASTER PROMPT 13: MAPLYTICS – GIS & TERRITORY MANAGEMENT
+// ==============================================================================
+
+/// Hierarchical Administrative & Geographic Regions
+model GisRegion {
+  id              String         @id @default(cuid())
+  tenantId        String
+  code            String
+  name            String
+  type            String         @default("METRO") // COUNTRY, STATE, METRO, DISTRICT
+  parentRegionId  String?
+  boundaryGeoJson String?        @db.LongText
+  centerLat       Float?
+  centerLng       Float?
+  status          String         @default("ACTIVE")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  tenant          Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parentRegion    GisRegion?     @relation("RegionHierarchy", fields: [parentRegionId], references: [id], onDelete: SetNull)
+  subRegions      GisRegion[]    @relation("RegionHierarchy")
+  territories     GisTerritory[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([type])
+  @@map("gis_regions")
+}
+
+/// Operational Geographic Sales & Research Territories with GeoJSON Boundaries
+model GisTerritory {
+  id              String                 @id @default(cuid())
+  tenantId        String
+  territoryId     String?
+  code            String
+  name            String
+  regionId        String?
+  assignedUserId  String?
+  boundaryGeoJson String                 @db.LongText
+  centerLat       Float                  @default(37.7749)
+  centerLng       Float                  @default(-122.4194)
+  areaSqKm        Float                  @default(0.0)
+  status          String                 @default("ACTIVE") // ACTIVE, DRAFT, REALIGNMENT_PROPOSED, ARCHIVED
+  color           String                 @default("#0ea5e9")
+  targetQuota     Float                  @default(0.0)
+  metadata        Json?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  region          GisRegion?             @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  assignedUser    User?                  @relation("GisTerritoryManager", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  features        GisFeature[]
+  realignments    GisRealignment[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([regionId])
+  @@index([assignedUserId])
+  @@index([status])
+  @@map("gis_territories")
+}
+
+/// Dynamic Map Visualizer Layers (Territory, Leads, Accounts, Uploaded, Drawn, Heatmap)
+model GisLayer {
+  id           String        @id @default(cuid())
+  tenantId     String
+  code         String
+  name         String
+  layerType    String        @default("ACCOUNTS") // TERRITORY_BOUNDARIES, LEADS, ACCOUNTS, UPLOADED_FILE, DRAWING, ARCGIS
+  isVisible    Boolean       @default(true)
+  opacity      Float         @default(1.0)
+  displayOrder Int           @default(1)
+  color        String        @default("#3b82f6")
+  config       Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  features     GisFeature[]
+  files        GisUploadedFile[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([layerType])
+  @@map("gis_layers")
+}
+
+/// Spatial Features (Points, Lines, Polygons) with Properties & Coordinates
+model GisFeature {
+  id           String        @id @default(cuid())
+  tenantId     String
+  layerId      String?
+  territoryId  String?
+  name         String
+  featureType  String        @default("ACCOUNT") // LEAD, PROSPECT, ACCOUNT, ASSET, WAYPOINT, DRAWN
+  geometryType String        @default("POINT") // POINT, LINESTRING, POLYGON
+  latitude     Float?
+  longitude    Float?
+  coordinates  Json
+  properties   Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  layer        GisLayer?     @relation(fields: [layerId], references: [id], onDelete: SetNull)
+  territory    GisTerritory? @relation(fields: [territoryId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([layerId])
+  @@index([territoryId])
+  @@index([featureType])
+  @@map("gis_features")
+}
+
+/// Uploaded Geographic Shapefile, GeoJSON & KML Files
+model GisUploadedFile {
+  id            String    @id @default(cuid())
+  tenantId      String
+  uploadedById  String?
+  filename      String
+  fileType      String    @default("GEOJSON") // GEOJSON, KML, SHAPEFILE
+  fileSizeBytes Int       @default(0)
+  featureCount  Int       @default(0)
+  status        String    @default("PARSED") // PARSED, FAILED
+  errorMessage  String?   @db.Text
+  layerId       String?
+  rawContent    String?   @db.LongText
+  createdAt     DateTime  @default(now())
+
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  uploadedBy    User?     @relation("GisUserUploadedFiles", fields: [uploadedById], references: [id], onDelete: SetNull)
+  layer         GisLayer? @relation(fields: [layerId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([uploadedById])
+  @@map("gis_uploaded_files")
+}
+
+/// Territory Realignment Proposals & Boundary Delta Comparison
+model GisRealignment {
+  id                     String       @id @default(cuid())
+  tenantId               String
+  territoryId            String
+  proposalName           String
+  status                 String       @default("DRAFT") // DRAFT, SUBMITTED, APPROVED, REJECTED
+  proposedByUserId       String?
+  approvedByUserId       String?
+  currentBoundary        String       @db.LongText
+  proposedBoundary       String       @db.LongText
+  currentAreaSqKm        Float        @default(0.0)
+  proposedAreaSqKm       Float        @default(0.0)
+  currentAssignedUserId  String?
+  proposedAssignedUserId String?
+  impactSummary          Json?
+  justification          String?      @db.Text
+  decidedAt              DateTime?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  tenant                 Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  territory              GisTerritory @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+  proposedBy             User?        @relation("GisProposedRealignments", fields: [proposedByUserId], references: [id], onDelete: SetNull)
+  approvedBy             User?        @relation("GisApprovedRealignments", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([territoryId])
+  @@index([status])
+  @@map("gis_realignments")
+}
+
+/// ArcGIS Feature Service & WebMap Secure Configuration
+model GisArcgisConfig {
+  id                     String    @id @default(cuid())
+  tenantId               String
+  serviceName            String
+  serviceUrl             String    @db.VarChar(512)
+  authType               String    @default("API_KEY") // API_KEY, TOKEN, PUBLIC, OAUTH2
+  apiKeyMasked           String?
+  apiKeyEncrypted        String?   @db.Text
+  clientId               String?
+  clientSecretEncrypted  String?   @db.Text
+  status                 String    @default("DISCONNECTED") // CONNECTED, DISCONNECTED, ERROR
+  layerCount             Int       @default(0)
+  lastTestedAt           DateTime?
+  lastError              String?   @db.Text
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  tenant                 Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, serviceName])
+  @@index([tenantId])
+  @@map("gis_arcgis_configs")
+}
+
+/// GIS Spatial Audit Logs for Boundary Alterations and Approvals
+model GisAuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String
+  userId     String?
+  action     String // CREATE_TERRITORY, UPDATE_BOUNDARY, UPLOAD_FILE, PROPOSE_REALIGNMENT, APPROVE_REALIGNMENT
+  entityType String // TERRITORY, LAYER, REALIGNMENT, ARCGIS
+  entityId   String
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user       User?    @relation("GisUserAuditLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("gis_audit_logs")
+}
+
+// ==============================================================================
+// MASTER PROMPT 14: BFOV CHARTS – CORE DIAGRAMMING ENGINE
+// ==============================================================================
+
+/// Core BFOV Visual Canvas Diagram with Structured Graph Content
+model BfovDiagram {
+  id           String    @id @default(cuid())
+  tenantId     String
+  userId       String?
+  projectId    String?
+  title        String    @db.VarChar(255)
+  description  String?   @db.Text
+  diagramType  String    @default("FLOWCHART") // FLOWCHART, UML, ERD, NETWORK, GENERAL, SEQUENCE
+  category     String    @default("General") // Architecture, Process, Data Model, Network, R&D
+  tags         Json?     // Array of string tags e.g. ["api", "auth", "flow"]
+  isPublic     Boolean   @default(false)
+  isTemplate   Boolean   @default(false)
+  version      Int       @default(1)
+  nodeCount    Int       @default(0)
+  edgeCount    Int       @default(0)
+  graphData    Json      // Structured { nodes: [], edges: [], viewport: { x, y, zoom } }
+  thumbnail    String?   @db.MediumText // SVG thumbnail or encoded preview
+  metadata     Json?     // Layout settings, grid snap, canvas size
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  author       User?     @relation("BfovDiagramAuthor", fields: [userId], references: [id], onDelete: SetNull)
+  project      ErpProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  versions     BfovDiagramVersion[]
+  comments     BfovDiagramComment[]
+  shares       BfovDiagramShare[]
+  aiGenerations BfovAiGeneration[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([diagramType])
+  @@index([category])
+  @@map("bfov_diagrams")
+}
+
+/// Version History Snapshot for BFOV Diagrams
+model BfovDiagramVersion {
+  id            String       @id @default(cuid())
+  diagramId     String
+  tenantId      String
+  version       Int
+  title         String
+  changeSummary String?      @db.Text
+  graphData     Json
+  nodeCount     Int          @default(0)
+  edgeCount     Int          @default(0)
+  createdById   String?
+  createdAt     DateTime     @default(now())
+
+  diagram       BfovDiagram  @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy     User?        @relation("BfovVersionAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([diagramId, version])
+  @@index([tenantId])
+  @@index([diagramId])
+  @@map("bfov_diagram_versions")
+}
+
+/// Built-in and Custom Diagram Templates
+model BfovDiagramTemplate {
+  id               String    @id @default(cuid())
+  templateKey      String    @unique
+  title            String
+  description      String?   @db.Text
+  category         String    // Flowchart, UML, ERD, Network
+  diagramType      String    // FLOWCHART, UML, ERD, NETWORK
+  defaultGraphData Json
+  icon             String?
+  isSystem         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+
+  @@index([category])
+  @@index([diagramType])
+  @@map("bfov_diagram_templates")
+}
+
+/// Contextual Comments & Collaboration Feedback on BFOV Diagrams
+model BfovDiagramComment {
+  id           String       @id @default(cuid())
+  diagramId    String
+  tenantId     String
+  userId       String
+  content      String       @db.Text
+  nodeId       String?
+  isResolved   Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  diagram      BfovDiagram  @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  author       User         @relation("BfovCommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([diagramId])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([nodeId])
+  @@map("bfov_diagram_comments")
+}
+
+/// Sharing and Granular RBAC Permissions for Diagrams (VIEWER / EDITOR)
+model BfovDiagramShare {
+  id               String       @id @default(cuid())
+  diagramId        String
+  tenantId         String
+  sharedWithUserId String?
+  sharedWithEmail  String?
+  role             String       @default("VIEWER") // VIEWER, EDITOR
+  createdAt        DateTime     @default(now())
+
+  diagram          BfovDiagram  @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+  tenant           Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sharedWithUser   User?        @relation("BfovSharedWithUser", fields: [sharedWithUserId], references: [id], onDelete: SetNull)
+
+  @@index([diagramId])
+  @@index([tenantId])
+  @@index([sharedWithUserId])
+  @@map("bfov_diagram_shares")
+}
+
+/// AI Text-to-Diagram & AI-Assisted Editing Audit Log
+model BfovAiGeneration {
+  id           String       @id @default(cuid())
+  tenantId     String
+  userId       String?
+  diagramId    String?
+  prompt       String       @db.Text
+  diagramType  String
+  engine       String       @default("NATIVE_SYNTHESIS") // GEMINI, OLLAMA, NATIVE_SYNTHESIS
+  rawResponse  String?      @db.MediumText
+  status       String       @default("SUCCESS") // SUCCESS, FAILED
+  createdAt    DateTime     @default(now())
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user         User?        @relation("BfovAiUser", fields: [userId], references: [id], onDelete: SetNull)
+  diagram      BfovDiagram? @relation(fields: [diagramId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([diagramId])
+  @@map("bfov_ai_generations")
+}
+
+// ==============================================================================
+// MASTER PROMPT 16: IP, COMPLIANCE, ENTERPRISE AUDIT & API ACCESS
+// ==============================================================================
+
+/// Intellectual Property & Patent Registry
+model RdIpAsset {
+  id                String       @id @default(cuid())
+  tenantId          String
+  projectId         String?
+  title             String       @db.VarChar(255)
+  description       String?      @db.Text
+  category          String       @default("PATENT") // PATENT, TRADEMARK, COPYRIGHT, INDUSTRIAL_DESIGN, TRADE_SECRET
+  ipType            String       @default("PATENT")
+  status            String       @default("INVENTION_DISCLOSURE") // INVENTION_DISCLOSURE, INITIAL_REVIEW, FILING_PREP, APPLICATION_SUBMITTED, EXAMINATION, GRANTED, REJECTED, EXPIRED, ABANDONED
+  jurisdiction      String       @default("US") // US, EP, WO, IN, JP, CN, UK
+  applicationNumber String?      @db.VarChar(128)
+  patentNumber      String?      @db.VarChar(128)
+  filingDate        DateTime?
+  grantDate         DateTime?
+  expiryDate        DateTime?
+  priorityDate      DateTime?
+  claimsCount       Int          @default(1)
+  inventors         Json?        // Array of strings
+  ownerEntity       String?      @default("EgoLytics R&D Division")
+  supportingDocs    Json?        // Metadata of uploaded disclosures/attachments
+  notes             String?      @db.Text
+  createdById       String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  tenant            Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project           ErpProject?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  creator           User?        @relation("CreatedIpAssets", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([category])
+  @@index([status])
+  @@index([jurisdiction])
+  @@index([createdById])
+  @@map("rd_ip_assets")
+}
+
+/// Regulatory Compliance & Standard Operating Procedures (SOP)
+model RdComplianceSop {
+  id                    String       @id @default(cuid())
+  tenantId              String
+  sopIdentifier         String       @db.VarChar(64) // e.g. "SOP-RD-042"
+  title                 String       @db.VarChar(255)
+  description           String?      @db.Text
+  version               String       @default("1.0") @db.VarChar(32)
+  category              String       @default("LAB_SAFETY") // LAB_SAFETY, DATA_INTEGRITY, REGULATORY, CLINICAL, QUALITY
+  regulatoryStandard    String?      @default("ISO 9001 / GLP") @db.VarChar(128)
+  approvalStatus        String       @default("DRAFT") // DRAFT, UNDER_REVIEW, APPROVED, OBSOLETE
+  effectiveDate         DateTime?
+  reviewDate            DateTime?
+  ownerId               String?
+  approvedById          String?
+  approvedAt            DateTime?
+  checklists            Json?        // Verification steps
+  nonComplianceRecords  Json?        // Incidents and corrective action tracking
+  supportingDocs        Json?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  tenant                Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner                 User?        @relation("SopOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  approver              User?        @relation("SopApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, sopIdentifier])
+  @@index([tenantId])
+  @@index([category])
+  @@index([approvalStatus])
+  @@index([ownerId])
+  @@index([approvedById])
+  @@map("rd_compliance_sops")
+}
+
+/// Universal Enterprise Audit Trail (Immutable governance history)
+model RdEnterpriseAuditLog {
+  id         String       @id @default(cuid())
+  tenantId   String
+  userId     String?
+  actorName  String?      @db.VarChar(191)
+  action     String       @db.VarChar(64)
+  entityType String       @db.VarChar(64)
+  entityId   String       @db.VarChar(191)
+  details    Json?
+  ipAddress  String?      @db.VarChar(64)
+  userAgent  String?      @db.VarChar(255)
+  createdAt  DateTime     @default(now())
+
+  tenant     Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user       User?        @relation("EnterpriseAuditUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("rd_enterprise_audit_logs")
+}
+
+/// Scoped Enterprise API Key Management
+model RdApiKey {
+  id              String       @id @default(cuid())
+  tenantId        String
+  createdById     String?
+  name            String       @db.VarChar(191)
+  keyPrefix       String       @db.VarChar(64) // e.g. "egokey_live_8f3a..."
+  keyHash         String       @db.VarChar(255) // SHA-256 hash
+  scopes          Json         // Array of string permissions
+  rateLimitPerMin Int          @default(60)
+  status          String       @default("ACTIVE") // ACTIVE, REVOKED, EXPIRED
+  expiresAt       DateTime?
+  lastUsedAt      DateTime?
+  usageCount      Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  tenant          Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  creator         User?        @relation("ApiKeyCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([createdById])
+  @@index([keyPrefix])
+  @@index([status])
+  @@map("rd_api_keys")
+}
+
+
+
+
+
+
+
