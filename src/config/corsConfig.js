@@ -26,20 +26,9 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3001',
   'http://localhost:8080',
 
-  // 127.0.0.1 IP equivalents
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:5174',
-  'http://127.0.0.1:5175',
-  'http://127.0.0.1:5176',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:8080',
-
   // Production & Staging Domains
   'https://crm-energy.netlify.app',
-  'https://crm-energy-production.up.railway.app',
-  'https://crm-energy-backend-production.up.railway.app',
-  'https://crm-energy-backend-production-59b6.up.railway.app',
+
 
   // Extra origins from .env (CORS_ORIGIN)
   ...parseOrigins(process.env.CORS_ORIGIN),
